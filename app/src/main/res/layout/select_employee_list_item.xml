@@ -18,6 +18,7 @@
             android:id="@+id/hoten_textview"
             android:layout_width="match_parent"
             android:layout_height="30dp"
+            android:textStyle="bold"
             android:text="Hưng"
             android:gravity="center_vertical"/>
         <TextView
@@ -34,7 +35,7 @@
         android:layout_toLeftOf="@id/add_employee_checkbox"
         android:gravity="center_vertical"
         android:text="20"
-        android:textAlignment="center" />
+        android:textAlignment="center"/>
     <CheckBox
         android:id="@+id/add_employee_checkbox"
         android:layout_width="30dp"

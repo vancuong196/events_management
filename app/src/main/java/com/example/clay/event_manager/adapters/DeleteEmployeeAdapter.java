@@ -59,17 +59,17 @@ public class DeleteEmployeeAdapter extends ArrayAdapter<Employee> {
     }
 
     public void notifyDataSetChanged(String from) {
-        Log.d("debug", "size at delete Adapter = "+ selectedEmployees.size());
-        switch(from) {
+        Log.d("debug", "size at delete Adapter = " + selectedEmployees.size());
+        switch (from) {
             case "adapter":
                 AddEventActivity.setSelectedEmployees(selectedEmployees);
                 Log.d("debug", "from adapter, adapter size = " + selectedEmployees.size()
-                +", activity size = "+ AddEventActivity.getSelectedEmployees().size());
+                        + ", activity size = " + AddEventActivity.getSelectedEmployees().size());
                 break;
             case "activity":
                 setSelectedEmployees(AddEventActivity.selectedEmployees);
                 Log.d("debug", "from activity, adapter size = " + selectedEmployees.size()
-                        +", activity size = "+ AddEventActivity.getSelectedEmployees().size());
+                        + ", activity size = " + AddEventActivity.getSelectedEmployees().size());
                 break;
         }
         super.notifyDataSetChanged();
