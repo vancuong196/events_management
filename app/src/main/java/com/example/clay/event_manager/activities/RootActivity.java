@@ -1,18 +1,15 @@
 package com.example.clay.event_manager.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.clay.event_manager.fragments.EventManagementFragment;
 import com.example.clay.event_manager.fragments.UserManagementFragment;
@@ -23,6 +20,7 @@ public class RootActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     NavigationView navigationView;
     Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +49,7 @@ public class RootActivity extends AppCompatActivity
 
         setMenuItemChecked(R.id.nav_event);
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -62,7 +61,7 @@ public class RootActivity extends AppCompatActivity
     }
 
     private void setMenuItemChecked(int menuItemID) {
-        MenuItem menuItem =  navigationView.getMenu().findItem(menuItemID);
+        MenuItem menuItem = navigationView.getMenu().findItem(menuItemID);
         menuItem.setChecked(true);
     }
 
@@ -73,6 +72,7 @@ public class RootActivity extends AppCompatActivity
         transaction.addToBackStack(null);
         transaction.commit();
     }
+
     private void openEventManagementFragment() {
 
         // Replace root view to default fragment
@@ -80,6 +80,7 @@ public class RootActivity extends AppCompatActivity
         Fragment newFragment = new EventManagementFragment();
         ReplaceFragment(newFragment);
     }
+
     private void openUserManagementFragment() {
         // Replace root view to default fragment
         toolbar.setTitle("Nhân viên");
@@ -102,14 +103,10 @@ public class RootActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_event) {
-
             openEventManagementFragment();
-
         } else if (id == R.id.nav_employee) {
-
             openUserManagementFragment();
         } else if (id == R.id.nav_notification) {
-
             openNotficationManagementFragment();
         } else if (id == R.id.nav_tools) {
 

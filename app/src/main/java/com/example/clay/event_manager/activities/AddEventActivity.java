@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.example.clay.event_manager.adapters.DeleteEmployeeAdapter;
 import com.example.clay.event_manager.adapters.SelectEmployeeAdapter;
+import com.example.clay.event_manager.fragments.EventManagementFragment;
 import com.example.clay.event_manager.models.Employee;
 import com.example.clay.event_manager.utils.CalendarUtil;
 import com.example.clay.event_manager.utils.DatabaseAccess;
@@ -44,11 +46,11 @@ public class AddEventActivity extends AppCompatActivity {
     TimePickerDialog.OnTimeSetListener timeSetListener;
     View currentView;
 
-    public static ArrayList<Employee> selectedEmployees;
+    ArrayList<String> selectedEmployees;
     DeleteEmployeeAdapter deleteAdapter;
     SelectEmployeeAdapter selectAdapder;
 
-    static public ArrayList<Employee> getSelectedEmployees() {
+    public ArrayList<String> getSelectedEmployees() {
         return selectedEmployees;
     }
 
@@ -62,15 +64,15 @@ public class AddEventActivity extends AppCompatActivity {
 
         selectedEmployees = new ArrayList<>();
 
-        deleteAdapter = new DeleteEmployeeAdapter(this);
-        selectAdapder = new SelectEmployeeAdapter(this);
+        deleteAdapter = new DeleteEmployeeAdapter(this, selectedEmployees);
+        selectAdapder = new SelectEmployeeAdapter(this, selectedEmployees);
         employeeListView.setAdapter(deleteAdapter);
     }
 
-    public static void setSelectedEmployees(ArrayList<Employee> selectedEmployees) {
-        AddEventActivity.selectedEmployees.clear();
-        AddEventActivity.selectedEmployees.addAll(selectedEmployees);
-    }
+//    public static void setSelectedEmployees(ArrayList<Employee> selectedEmployees) {
+//        AddEventActivity.selectedEmployees.clear();
+//        AddEventActivity.selectedEmployees.addAll(selectedEmployees);
+//    }
 
     private void connectViews() {
         titleEditText = (EditText) findViewById(R.id.title_edit_text);
@@ -108,8 +110,9 @@ public class AddEventActivity extends AppCompatActivity {
                         !locationEditText.getText().toString().isEmpty()) {
                     String employeeIds = "";
                     if (selectedEmployees.size() > 0) {
-                        for (Employee e : selectedEmployees) {
-                            employeeIds += e.getId() + ",";
+                        for (String position : selectedEmployees) {
+                            employeeIds += EventManagementFragment.employeeList
+                                    .get(Integer.parseInt(position)).getId() + ",";
                         }
                         employeeIds = employeeIds.substring(0, employeeIds.length() - 2);
                     }
@@ -302,15 +305,28 @@ public class AddEventActivity extends AppCompatActivity {
         Button cancelButton = (Button) addEmployeeDialog.findViewById(R.id.cancel_button);
         Button okButton = (Button) addEmployeeDialog.findViewById(R.id.ok_button);
 
-        setSelectedEmployees(deleteAdapter.getSelectedEmployees());
-        selectAdapder.setSelectedEmployees(selectedEmployees);
         addListView.setAdapter(selectAdapder);
+
+        Log.d("debug", "from delAdap: " + deleteAdapter.getSelectedEmployees().size());
+        Log.d("debug", "addAct got: " + selectedEmployees.size());
+        Log.d("debug", "selAdap got: " + selectAdapder.getSelectedEmployees().size());
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setSelectedEmployees(selectAdapder.getSelectedEmployees());
-                deleteAdapter.notifyDataSetChanged("activity");
+                CheckBox tempCheckbox;
+                for(int i = 0; i < addListView.getChildCount(); i++) {
+                    tempCheckbox = (CheckBox) addListView.getChildAt(i).findViewById(R.id.add_employee_checkbox);
+                    if(tempCheckbox.isChecked() &&
+                            !selectedEmployees.contains("" + i)) {
+                        selectedEmployees.add("" + i);
+                    }
+                    if(!tempCheckbox.isChecked() &&
+                            selectedEmployees.contains("" + i)) {
+                        selectedEmployees.remove("" + i);
+                    }
+                }
+                deleteAdapter.notifyDataSetChanged();
                 addEmployeeDialog.dismiss();
             }
         });

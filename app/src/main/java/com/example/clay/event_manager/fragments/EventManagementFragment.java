@@ -48,8 +48,8 @@ import java.util.Map;
  */
 public class EventManagementFragment extends Fragment {
 
-
     public static ArrayList<Employee> employeeList;
+
     FloatingActionButton addButton;
     ListView eventsListView;
     CalendarView calendarView;
@@ -76,8 +76,7 @@ public class EventManagementFragment extends Fragment {
 
         String date = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
         currentDateEvents = new ArrayList<>();
-
-        eventAdapter = new EventAdapter(this.getActivity());
+        eventAdapter = new EventAdapter(getActivity(), EventManagementFragment.currentDateEvents);
         eventsListView.setAdapter(eventAdapter);
 
         EventRepository.getEventsOnDate(new EventRepository.MyEventCallback() {

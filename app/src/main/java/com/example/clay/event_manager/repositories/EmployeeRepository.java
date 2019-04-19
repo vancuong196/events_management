@@ -1,6 +1,7 @@
 package com.example.clay.event_manager.repositories;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.example.clay.event_manager.models.Employee;
 import com.example.clay.event_manager.utils.Constants;
@@ -44,4 +45,15 @@ public class EmployeeRepository {
                 });
         return employeeList;
     }
+
+    public static boolean isContained(Employee employee, ArrayList<Employee> arr) {
+        Log.d("debug", "employeeList.size() = "+ arr.size());
+        for(Employee e : arr) {
+//            Log.d("debug",e.getId()+" / "+employee.getId());
+            if(e.getId().equals(employee.getId())) {
+                return true;
+            }
+        }
+        return false;
+    };
 }
