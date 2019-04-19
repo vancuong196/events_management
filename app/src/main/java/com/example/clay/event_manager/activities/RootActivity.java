@@ -20,7 +20,7 @@ import com.example.clay.left.R;
 
 public class RootActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    NavigationView navigationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,10 +34,14 @@ public class RootActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // Replace root view to default fragment
         Fragment newFragment = new EventManagementFragment();
         ReplaceFragment(newFragment);
+        // Make menu checked.
+        setMenuItemChecked(R.id.nav_event);
     }
 
     @Override
@@ -48,6 +52,11 @@ public class RootActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+    }
+
+    private void setMenuItemChecked(int menuItemID) {
+        MenuItem menuItem =  navigationView.getMenu().findItem(menuItemID);
+        menuItem.setChecked(true);
     }
 
     @Override
@@ -73,7 +82,10 @@ public class RootActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_add_e) {
+            return true;
+        }
+        if (id == R.id.action_list_view) {
             return true;
         }
 
@@ -86,17 +98,17 @@ public class RootActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_event) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_employee) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_notification) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_tools) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_about) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_changelog) {
 
         }
 

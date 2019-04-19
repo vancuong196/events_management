@@ -2,8 +2,21 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_add_e"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:icon="@drawable/ic_add"
+        android:title="Thêm sự kiện"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_list_view"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_list"
+        android:title="Xem theo danh sách"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_sort"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_list"
+        android:title="Sắp xếp"
         app:showAsAction="never" />
 </menu>
