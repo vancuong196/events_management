@@ -1,11 +1,9 @@
 package com.example.clay.event_manager.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,20 +12,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.clay.event_manager.fragments.EventManagementFragment;
+import com.example.clay.event_manager.fragments.UserManagementFragment;
 import com.example.clay.left.R;
 
 public class RootActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     NavigationView navigationView;
+    Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Quản lý sự kiện");
+        initView();
+    }
+
+    private void initView() {
+
+        //Init toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -37,13 +44,11 @@ public class RootActivity extends AppCompatActivity
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Replace root view to default fragment
-        Fragment newFragment = new EventManagementFragment();
-        ReplaceFragment(newFragment);
-        // Make menu checked.
+        //open event management as default.
+        openEventManagementFragment();
+
         setMenuItemChecked(R.id.nav_event);
     }
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -59,13 +64,6 @@ public class RootActivity extends AppCompatActivity
         menuItem.setChecked(true);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
     public void ReplaceFragment(Fragment newFragment) {
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -73,24 +71,27 @@ public class RootActivity extends AppCompatActivity
         transaction.addToBackStack(null);
         transaction.commit();
     }
+    private void openEventManagementFragment() {
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_add_e) {
-            return true;
-        }
-        if (id == R.id.action_list_view) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        // Replace root view to default fragment
+        toolbar.setTitle("Sự kiện");
+        Fragment newFragment = new EventManagementFragment();
+        ReplaceFragment(newFragment);
     }
+    private void openUserManagementFragment() {
+        // Replace root view to default fragment
+        toolbar.setTitle("Nhân viên");
+        Fragment newFragment = new UserManagementFragment();
+        ReplaceFragment(newFragment);
+    }
+
+    private void openNotficationManagementFragment() {
+        // Replace root view to default fragment
+        toolbar.setTitle("Thông báo");
+        Fragment newFragment = new EventManagementFragment();
+        ReplaceFragment(newFragment);
+    }
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -99,11 +100,15 @@ public class RootActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_event) {
-            // Handle the camera action
+
+            openEventManagementFragment();
+
         } else if (id == R.id.nav_employee) {
 
+            openUserManagementFragment();
         } else if (id == R.id.nav_notification) {
 
+            openNotficationManagementFragment();
         } else if (id == R.id.nav_tools) {
 
         } else if (id == R.id.nav_about) {
