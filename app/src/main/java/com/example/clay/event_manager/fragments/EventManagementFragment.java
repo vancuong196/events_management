@@ -79,20 +79,19 @@ public class EventManagementFragment extends Fragment {
         eventAdapter = new EventAdapter(getActivity(), EventManagementFragment.currentDateEvents);
         eventsListView.setAdapter(eventAdapter);
 
-        EventRepository.getEventsOnDate(new EventRepository.MyEventCallback() {
-            @Override
-            public void onCallback(ArrayList<Event> eventList) {
-//                currentDateEvents.clear();
-//                currentDateEvents.addAll(eventList);
-                currentDateEvents = eventList;
-                Log.d("debug", "EventManagementFragment: got "+currentDateEvents.size()+" events on View created. " +
-                        "date = "+CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate()));
-                eventAdapter.notifyDataSetChanged();
-            }
-        }, date);
-        employeeList = EmployeeRepository.getEmployeesFromServer();
-
-
+        //HERE!!!
+        currentDateEvents = EventRepository.getInstance().getEventsOnDate(date);
+        eventAdapter.notifyDataSetChanged();
+//        EventRepository.getEventsOnDate(new EventRepository.MyEventCallback() {
+//            @Override
+//            public void onCallback(ArrayList<Event> eventList) {
+//                currentDateEvents = eventList;
+//                eventAdapter.notifyDataSetChanged();
+//            }
+//        }, date);
+//        employeeList = new ArrayList<>();
+        employeeList = EmployeeRepository.getInstance().getAllEmployees();
+        Log.d("debug", "Event Manager employee size = "+employeeList.size());
     }
 
     @Override
@@ -152,15 +151,17 @@ public class EventManagementFragment extends Fragment {
                 String date = CalendarUtil.getInstance().getSdfDayMonthYear()
                         .format(CalendarUtil.getInstance().getCalendar().getTime());
 
-                EventRepository.getEventsOnDate(new EventRepository.MyEventCallback() {
-                    @Override
-                    public void onCallback(ArrayList<Event> eventList) {
-                        currentDateEvents = eventList;
-                        Log.d("debug", "EventManagementFragment: onSelectedDayChanged: currentDateEvents size = "
-                        +currentDateEvents.size());
-                        eventAdapter.notifyDataSetChanged();
-                    }
-                }, date);
+                currentDateEvents = EventRepository.getInstance().getEventsOnDate(date);
+                eventAdapter.notifyDataSetChanged();
+//                EventRepository.getEventsOnDate(new EventRepository.MyEventCallback() {
+//                    @Override
+//                    public void onCallback(ArrayList<Event> eventList) {
+//                        currentDateEvents = eventList;
+//                        Log.d("debug", "EventManagementFragment: onSelectedDayChanged: currentDateEvents size = "
+//                        +currentDateEvents.size());
+//                        eventAdapter.notifyDataSetChanged();
+//                    }
+//                }, date);
             }
         });
 

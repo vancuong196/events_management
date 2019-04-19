@@ -17,7 +17,69 @@ import java.util.Map;
 
 public class EventRepository {
 
-    public static void getEventsOnDate(final MyEventCallback callback, String date) {
+    private ArrayList<Event> allEvents;
+    static EventRepository instance;
+
+    private EventRepository() {
+        allEvents = new ArrayList<>();
+        getAllEventsFromServer(new MyEventCallback() {
+            @Override
+            public void onCallback(ArrayList<Event> eventList) {
+                allEvents.addAll(eventList);
+            }
+        });
+    }
+
+    public ArrayList<Event> getAllEvents() {
+        return allEvents;
+    }
+
+    static public EventRepository getInstance() {
+        if(instance == null) {
+            instance = new EventRepository();
+        }
+        return instance;
+    }
+
+    private interface MyEventCallback {
+        void onCallback(ArrayList<Event> eventList);
+    }
+
+    private void getAllEventsFromServer(final MyEventCallback callback) {
+        DatabaseAccess.getInstance().getDatabase()
+                .collection(Constants.EVENT_COLLECTION)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            ArrayList<Event> eventList = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Map<String, Object> tempHashMap = document.getData();
+                                Event tempEvent = new Event(document.getId(),
+                                        (String) tempHashMap.get(Constants.EVENT_NAME),
+                                        (String) tempHashMap.get(Constants.EVENT_START_DATE),
+                                        (String) tempHashMap.get(Constants.EVENT_END_DATE),
+                                        (String) tempHashMap.get(Constants.EVENT_START_TIME),
+                                        (String) tempHashMap.get(Constants.EVENT_END_TIME),
+                                        (String) tempHashMap.get(Constants.EVENT_LOCATION),
+                                        (String) tempHashMap.get(Constants.EVENT_EMPLOYEE_ID),
+                                        (String) tempHashMap.get(Constants.EVENT_NOTE));
+                                eventList.add(tempEvent);
+                            }
+                            callback.onCallback(eventList);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("debug", "EventRepository: get events failed");
+                    }
+                });
+    }
+
+    public static void getEvensOnDate(final MyEventCallback callback, String date) {
         DatabaseAccess.getInstance().getDatabase()
                 .collection(Constants.EVENT_COLLECTION)
                 .whereEqualTo(Constants.EVENT_START_DATE, date)
@@ -39,10 +101,7 @@ public class EventRepository {
                                         (String) tempHashMap.get(Constants.EVENT_EMPLOYEE_ID),
                                         (String) tempHashMap.get(Constants.EVENT_NOTE));
                                 eventList.add(tempEvent);
-                                Log.d("debug", "EventRepository: found 1 events");
                             }
-                            Log.d("debug", "EventRepository: end of searching. got "
-                                    + eventList.size() + " events");
                             callback.onCallback(eventList);
                         }
                     }
@@ -53,11 +112,16 @@ public class EventRepository {
                         Log.d("debug", "EventRepository: get events failed");
                     }
                 });
-
     }
 
-    public interface MyEventCallback {
-        void onCallback(ArrayList<Event> eventList);
+    public ArrayList<Event> getEventsOnDate(String date) {
+        ArrayList<Event> events = new ArrayList<>();
+        for(Event e : EventRepository.getInstance().getAllEvents()) {
+            if (e.getNgayBatDau().equals(date)) {
+                events.add(e);
+            }
+        }
+        return events;
     }
 
 //    public static ArrayList<Event> getEventsOnDate(String date) {

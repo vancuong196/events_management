@@ -7,6 +7,7 @@ import com.example.clay.event_manager.models.Employee;
 import com.example.clay.event_manager.utils.Constants;
 import com.example.clay.event_manager.utils.DatabaseAccess;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -16,12 +17,31 @@ import java.util.Map;
 
 public class EmployeeRepository {
 
-    public interface MyEmployeeCallback {
-        void onCallback(ArrayList<Employee> employeeList);
+    static EmployeeRepository instance;
+    ArrayList<Employee> allEmployees;
+
+    private EmployeeRepository() {
+        allEmployees = new ArrayList<>();
+        getAllEmployesFromServer(new MyEmployeeCallback() {
+            @Override
+            public void onCallback(ArrayList<Employee> employeeList) {
+                allEmployees.addAll(employeeList);
+            }
+        });
     }
 
-    public static ArrayList<Employee> getEmployeesFromServer() {
-        final ArrayList employeeList = new ArrayList<>();
+    static public EmployeeRepository getInstance() {
+        if (instance == null) {
+            instance = new EmployeeRepository();
+        }
+        return instance;
+    }
+
+    public ArrayList<Employee> getAllEmployees() {
+        return allEmployees;
+    }
+
+    private void getAllEmployesFromServer(final MyEmployeeCallback callback) {
         DatabaseAccess.getInstance().getDatabase()
                 .collection(Constants.EMPLOYEE_COLLECTION)
                 .get()
@@ -29,6 +49,7 @@ public class EmployeeRepository {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            ArrayList employeeList = new ArrayList<>();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Map<String, Object> tempHashMap = document.getData();
                                 Employee tempEmployee = new Employee(document.getId(),
@@ -40,20 +61,19 @@ public class EmployeeRepository {
                                         (String) tempHashMap.get(Constants.EMPLOYEE_EMAIL));
                                 employeeList.add(tempEmployee);
                             }
+                            callback.onCallback(employeeList);
                         }
                     }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("debug", "EventRepository: get events failed");
+                    }
                 });
-        return employeeList;
     }
 
-    public static boolean isContained(Employee employee, ArrayList<Employee> arr) {
-        Log.d("debug", "employeeList.size() = "+ arr.size());
-        for(Employee e : arr) {
-//            Log.d("debug",e.getId()+" / "+employee.getId());
-            if(e.getId().equals(employee.getId())) {
-                return true;
-            }
-        }
-        return false;
-    };
+    private interface MyEmployeeCallback {
+        void onCallback(ArrayList<Employee> employeeList);
+    }
 }
