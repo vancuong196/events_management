@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.example.clay.event_manager.adapters.DeleteEmployeeAdapter;
 import com.example.clay.event_manager.adapters.SelectEmployeeAdapter;
 import com.example.clay.event_manager.models.Employee;
+import com.example.clay.event_manager.utils.CalendarUtil;
 import com.example.clay.event_manager.utils.DatabaseAccess;
 import com.example.clay.left.R;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -39,10 +40,6 @@ public class AddEventActivity extends AppCompatActivity {
     Button addEmployeeButton, cancelButton, okButton;
     ListView employeeListView;
 
-    Calendar calendar = Calendar.getInstance();
-    SimpleDateFormat sdfDayMonthYear = new SimpleDateFormat("dd/MM/yyyy");;
-    SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEE");
-    SimpleDateFormat sdfTime = new SimpleDateFormat("hh:mm a");
     DatePickerDialog.OnDateSetListener dateSetListener;
     TimePickerDialog.OnTimeSetListener timeSetListener;
     View currentView;
@@ -183,46 +180,53 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
                                   int dayOfMonth) {
-                calendar.set(Calendar.YEAR, year);
-                calendar.set(Calendar.MONTH, monthOfYear);
-                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                CalendarUtil.getInstance().getCalendar().set(Calendar.YEAR, year);
+                CalendarUtil.getInstance().getCalendar().set(Calendar.MONTH, monthOfYear);
+                CalendarUtil.getInstance().getCalendar().set(Calendar.DAY_OF_MONTH, dayOfMonth);
 //                updateLabel();
                 if (currentView == startDateEditText) {
-                    startDateEditText.setText(sdfDayMonthYear.format(calendar.getTime()));
-                    startDowTextView.setText(sdfDayOfWeek.format(calendar.getTime()));
+                    startDateEditText.setText(CalendarUtil.getInstance().getSdfDayMonthYear()
+                            .format(CalendarUtil.getInstance().getCalendar().getTime()));
+                    startDowTextView.setText(CalendarUtil.getInstance().getSdfDayOfWeek()
+                            .format(CalendarUtil.getInstance().getCalendar().getTime()));
                 } else {
-                    endDateEditText.setText(sdfDayMonthYear.format(calendar.getTime()));
-                    endDowTextView.setText(sdfDayOfWeek.format(calendar.getTime()));
+                    endDateEditText.setText(CalendarUtil.getInstance().getSdfDayMonthYear()
+                            .format(CalendarUtil.getInstance().getCalendar().getTime()));
+                    endDowTextView.setText(CalendarUtil.getInstance().getSdfDayOfWeek()
+                            .format(CalendarUtil.getInstance().getCalendar().getTime()));
                 }
             }
         };
         timeSetListener = new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
-                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                calendar.set(Calendar.MINUTE, minute);
+                CalendarUtil.getInstance().getCalendar().set(Calendar.HOUR_OF_DAY, hourOfDay);
+                CalendarUtil.getInstance().getCalendar().set(Calendar.MINUTE, minute);
                 if(currentView == startTimeEditText) {
-                    startTimeEditText.setText(sdfTime.format(calendar.getTime()));
+                    startTimeEditText.setText(CalendarUtil.getInstance().getSdfTime()
+                            .format(CalendarUtil.getInstance().getCalendar().getTime()));
                 } else {
-                    endTimeEditText.setText(sdfTime.format(calendar.getTime()));
+                    endTimeEditText.setText(CalendarUtil.getInstance().getSdfTime()
+                            .format(CalendarUtil.getInstance().getCalendar().getTime()));
                 }
             }
         };
         startDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calendar = Calendar.getInstance();
-                Log.d("debug","startDateEditText clicked");
+                CalendarUtil.getInstance().setCalendar(Calendar.getInstance());
                 if(!startDateEditText.getText().equals("")) {
                     try {
-                        calendar.setTime(sdfDayMonthYear.parse(startDateEditText.getText().toString()));
+                        CalendarUtil.getInstance().getCalendar()
+                                .setTime(CalendarUtil.getInstance().getSdfDayMonthYear()
+                                        .parse(startDateEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-                int d = calendar.get(Calendar.DAY_OF_MONTH);
-                int m = calendar.get(Calendar.MONTH);
-                int y = calendar.get(Calendar.YEAR);
+                int d = CalendarUtil.getInstance().getCalendar().get(Calendar.DAY_OF_MONTH);
+                int m = CalendarUtil.getInstance().getCalendar().get(Calendar.MONTH);
+                int y = CalendarUtil.getInstance().getCalendar().get(Calendar.YEAR);
                 currentView = startDateEditText;
                 new DatePickerDialog(AddEventActivity.this, dateSetListener, y,
                         m, d).show();
@@ -231,18 +235,20 @@ public class AddEventActivity extends AppCompatActivity {
         endDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calendar = Calendar.getInstance();
+                CalendarUtil.getInstance().setCalendar(Calendar.getInstance());
                 if(!endDateEditText.getText().equals("")) {
                     try {
-                        calendar.setTime(sdfDayMonthYear.parse(endDateEditText.getText().toString()));
+                        CalendarUtil.getInstance().getCalendar()
+                                .setTime(CalendarUtil.getInstance().getSdfDayMonthYear()
+                                        .parse(endDateEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 currentView = endDateEditText;
-                int d = calendar.get(Calendar.DAY_OF_MONTH);
-                int m = calendar.get(Calendar.MONTH);
-                int y = calendar.get(Calendar.YEAR);
+                int d = CalendarUtil.getInstance().getCalendar().get(Calendar.DAY_OF_MONTH);
+                int m = CalendarUtil.getInstance().getCalendar().get(Calendar.MONTH);
+                int y = CalendarUtil.getInstance().getCalendar().get(Calendar.YEAR);
                 new DatePickerDialog(AddEventActivity.this, dateSetListener, y,
                         m, d).show();
             }
@@ -250,19 +256,19 @@ public class AddEventActivity extends AppCompatActivity {
         startTimeEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calendar = Calendar.getInstance();
+                CalendarUtil.getInstance().setCalendar(Calendar.getInstance());
                 if(!startTimeEditText.getText().equals("")) {
                     try {
-                        calendar.setTime(sdfTime.parse(startTimeEditText.getText().toString()));
-                        Log.d("debug","get Time: "+calendar.get(Calendar.HOUR)+
-                                ":"+calendar.get(Calendar.MINUTE)+"/"+calendar.get(Calendar.AM_PM));
+                        CalendarUtil.getInstance().getCalendar()
+                                .setTime(CalendarUtil.getInstance().getSdfTime()
+                                        .parse(startTimeEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 currentView = startTimeEditText;
-                int HH = calendar.get(Calendar.HOUR_OF_DAY);
-                int mm = calendar.get(Calendar.MINUTE);
+                int HH = CalendarUtil.getInstance().getCalendar().get(Calendar.HOUR_OF_DAY);
+                int mm = CalendarUtil.getInstance().getCalendar().get(Calendar.MINUTE);
                 new TimePickerDialog(AddEventActivity.this, timeSetListener, HH,
                         mm, false).show();
             }
@@ -270,17 +276,19 @@ public class AddEventActivity extends AppCompatActivity {
         endTimeEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calendar = Calendar.getInstance();
+                CalendarUtil.getInstance().setCalendar(Calendar.getInstance());
                 if(!endTimeEditText.getText().equals("")) {
                     try {
-                        calendar.setTime(sdfTime.parse(endTimeEditText.getText().toString()));
+                        CalendarUtil.getInstance().getCalendar()
+                                .setTime(CalendarUtil.getInstance().getSdfTime()
+                                        .parse(endTimeEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 currentView = endTimeEditText;
-                int HH = calendar.get(Calendar.HOUR_OF_DAY);
-                int mm = calendar.get(Calendar.MINUTE);
+                int HH = CalendarUtil.getInstance().getCalendar().get(Calendar.HOUR_OF_DAY);
+                int mm = CalendarUtil.getInstance().getCalendar().get(Calendar.MINUTE);
                 new TimePickerDialog(AddEventActivity.this, timeSetListener, HH,
                         mm, false).show();
             }
@@ -304,7 +312,6 @@ public class AddEventActivity extends AppCompatActivity {
                 setSelectedEmployees(selectAdapder.getSelectedEmployees());
                 deleteAdapter.notifyDataSetChanged("activity");
                 addEmployeeDialog.dismiss();
-                Log.d("debug", "size at AddEventActivity = " + selectedEmployees.size());
             }
         });
         cancelButton.setOnClickListener(new View.OnClickListener() {

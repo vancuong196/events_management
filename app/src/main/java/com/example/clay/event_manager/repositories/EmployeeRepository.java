@@ -15,29 +15,33 @@ import java.util.Map;
 
 public class EmployeeRepository {
 
+    public interface MyEmployeeCallback {
+        void onCallback(ArrayList<Employee> employeeList);
+    }
+
     public static ArrayList<Employee> getEmployeesFromServer() {
         final ArrayList employeeList = new ArrayList<>();
-
         DatabaseAccess.getInstance().getDatabase()
                 .collection(Constants.EMPLOYEE_COLLECTION)
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Map<String, Object> tempHashMap = document.getData();
-                        Employee tempEmployee = new Employee(document.getId(),
-                                (String) tempHashMap.get(Constants.EMPLOYEE_NAME),
-                                (String) tempHashMap.get(Constants.EMPLOYEE_SPECIALITY),
-                                (String) tempHashMap.get(Constants.EMPLOYEE_IDENTITY),
-                                (String) tempHashMap.get(Constants.EMPLOYEE_DAY_OF_BIRTH),
-                                (String) tempHashMap.get(Constants.EMPLOYEE_PHONE_NUMBER),
-                                (String) tempHashMap.get(Constants.EMPLOYEE_EMAIL));
-                        employeeList.add(tempEmployee);
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Map<String, Object> tempHashMap = document.getData();
+                                Employee tempEmployee = new Employee(document.getId(),
+                                        (String) tempHashMap.get(Constants.EMPLOYEE_NAME),
+                                        (String) tempHashMap.get(Constants.EMPLOYEE_SPECIALITY),
+                                        (String) tempHashMap.get(Constants.EMPLOYEE_IDENTITY),
+                                        (String) tempHashMap.get(Constants.EMPLOYEE_DAY_OF_BIRTH),
+                                        (String) tempHashMap.get(Constants.EMPLOYEE_PHONE_NUMBER),
+                                        (String) tempHashMap.get(Constants.EMPLOYEE_EMAIL));
+                                employeeList.add(tempEmployee);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
         return employeeList;
     }
 }

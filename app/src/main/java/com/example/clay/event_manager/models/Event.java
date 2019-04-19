@@ -10,14 +10,14 @@ public class Event {
     private String gioBatDau;
     private String gioKetThuc;
     private String diaDiem;
-    private ArrayList<String> nhanVienId;
+    private String nhanVienId;
     private String ghiChu;
 
     public Event() {
     }
 
-    public Event(String ten, String ngayBatDau, String ngayKetThuc, String gioBatDau, String gioKetThuc,
-                 String diaDiem, ArrayList<String> nhanVienId, String ghiChu) {
+    public Event(String id, String ten, String ngayBatDau, String ngayKetThuc, String gioBatDau, String gioKetThuc,
+                 String diaDiem, String nhanVienId, String ghiChu) {
         this.id = "";
         this.ten = ten;
         this.ngayBatDau = ngayBatDau;
@@ -25,8 +25,7 @@ public class Event {
         this.gioBatDau = gioBatDau;
         this.gioKetThuc = gioKetThuc;
         this.diaDiem = diaDiem;
-        this.nhanVienId = new ArrayList<>();
-        this.nhanVienId.addAll(nhanVienId);
+        this.nhanVienId = nhanVienId;
         this.ghiChu = ghiChu;
     }
 
@@ -86,11 +85,11 @@ public class Event {
         this.diaDiem = diaDiem;
     }
 
-    public ArrayList<String> getNhanVienId() {
+    public String getNhanVienId() {
         return nhanVienId;
     }
 
-    public void setNhanVienId(ArrayList<String> nhanVienId) {
+    public void setNhanVienId(String nhanVienId) {
         this.nhanVienId = nhanVienId;
     }
 

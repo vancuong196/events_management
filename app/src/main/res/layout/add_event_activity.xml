@@ -5,10 +5,6 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -111,7 +107,7 @@
                     <ListView
                         android:id="@+id/employees_listview"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="180dp">
                     </ListView>
                 <!--</ScrollView>-->
             </RelativeLayout>
@@ -128,27 +124,30 @@
             <EditText
                 android:id="@+id/note_edit_text"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            android:layout_alignParentBottom="true">
-            <Button
-                android:id="@+id/cancel_button"
-                android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Hủy"/>
-            <Button
-                android:id="@+id/ok_button"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="OK"/>
-        </LinearLayout>
+                android:layout_marginBottom="40dp"
+                android:minLines="3"
+                android:gravity="top"
+                android:inputType="textMultiLine"/>
         </LinearLayout>
     </ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_alignParentBottom="true">
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Hủy"/>
+        <Button
+            android:id="@+id/ok_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="OK"/>
+    </LinearLayout>
 </RelativeLayout>

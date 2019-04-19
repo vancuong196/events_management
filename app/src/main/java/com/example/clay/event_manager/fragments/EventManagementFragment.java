@@ -7,7 +7,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +21,12 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.example.clay.event_manager.activities.AddEventActivity;
+import com.example.clay.event_manager.adapters.EventAdapter;
 import com.example.clay.event_manager.models.Employee;
+import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.repositories.EmployeeRepository;
+import com.example.clay.event_manager.repositories.EventRepository;
+import com.example.clay.event_manager.utils.CalendarUtil;
 import com.example.clay.event_manager.utils.Constants;
 import com.example.clay.event_manager.utils.DatabaseAccess;
 import com.example.clay.left.R;
@@ -31,7 +38,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Map;
 
 /**
@@ -44,6 +53,8 @@ public class EventManagementFragment extends Fragment {
     FloatingActionButton addButton;
     ListView eventsListView;
     CalendarView calendarView;
+    EventAdapter eventAdapter;
+    public static ArrayList<Event> currentDateEvents;
 
     public EventManagementFragment() {
         // Required empty public constructor
@@ -62,7 +73,27 @@ public class EventManagementFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         connectViews(view);
         addEvents();
-        EmployeeRepository.getEmployeesFromServer();
+
+        String date = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
+        currentDateEvents = new ArrayList<>();
+
+        eventAdapter = new EventAdapter(this.getActivity());
+        eventsListView.setAdapter(eventAdapter);
+
+        EventRepository.getEventsOnDate(new EventRepository.MyEventCallback() {
+            @Override
+            public void onCallback(ArrayList<Event> eventList) {
+//                currentDateEvents.clear();
+//                currentDateEvents.addAll(eventList);
+                currentDateEvents = eventList;
+                Log.d("debug", "EventManagementFragment: got "+currentDateEvents.size()+" events on View created. " +
+                        "date = "+CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate()));
+                eventAdapter.notifyDataSetChanged();
+            }
+        }, date);
+        employeeList = EmployeeRepository.getEmployeesFromServer();
+
+
     }
 
     @Override
@@ -97,43 +128,6 @@ public class EventManagementFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-
-    private void getEmployeeListFromServer() {
-        employeeList = new ArrayList<>();
-        database.collection("nhanvien")
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        Map<String, Object> tempHashMap = document.getData();
-                        Employee tempEmployee = new Employee(document.getId(),
-                                (String) tempHashMap.get("hoten"), (String) tempHashMap.get("chuyenmon"),
-                                (String) tempHashMap.get("cmnd"), (String) tempHashMap.get("ngaysinh"),
-                                (String) tempHashMap.get("sdt"), (String) tempHashMap.get("email"));
-                        employeeList.add(tempEmployee);
-
-                    }
-                }
-            }
-        });
-    }
-
-
-
-
-
-    Button menuButton;
-    FloatingActionButton addButton;
-
-    ListView eventsListView;
-
-    CalendarView calendarView;
-
-    public static ArrayList<Employee> employeeList;
-
-    public static FirebaseFirestore database;
-
     private void connectViews(View v) {
 
         addButton = (FloatingActionButton) v.findViewById(R.id.add_button);
@@ -153,16 +147,21 @@ public class EventManagementFragment extends Fragment {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int dayOfMonth) {
 //                Toast.makeText(getContext(), dayOfMonth + "/" + (month + 1) + "/" + year, Toast.LENGTH_SHORT).show();
-                String date = dayOfMonth + "/" + (month + 1) + "/" + year;
-                DatabaseAccess.getInstance().getDatabase().collection(Constants.EVENT_COLLECTION)
-                        .whereEqualTo(Constants.EVENT_START_DATE, date)
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                CalendarUtil.getInstance().getCalendar().set(Calendar.YEAR, year);
+                CalendarUtil.getInstance().getCalendar().set(Calendar.MONTH, month);
+                CalendarUtil.getInstance().getCalendar().set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                String date = CalendarUtil.getInstance().getSdfDayMonthYear()
+                        .format(CalendarUtil.getInstance().getCalendar().getTime());
 
-                            }
-                        });
+                EventRepository.getEventsOnDate(new EventRepository.MyEventCallback() {
+                    @Override
+                    public void onCallback(ArrayList<Event> eventList) {
+                        currentDateEvents = eventList;
+                        Log.d("debug", "EventManagementFragment: onSelectedDayChanged: currentDateEvents size = "
+                        +currentDateEvents.size());
+                        eventAdapter.notifyDataSetChanged();
+                    }
+                }, date);
             }
         });
 
