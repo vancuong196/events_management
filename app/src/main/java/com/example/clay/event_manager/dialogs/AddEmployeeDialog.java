@@ -51,8 +51,8 @@ public class AddEmployeeDialog extends AppCompatDialogFragment {
             @Override
             public void onClick(View view) {
                 SparseBooleanArray sp = addEmployeeDialogListView.getCheckedItemPositions();
-                for(int i=0; i<sp.size(); i++) {
-                    if(sp.valueAt(i) == true) {
+                for (int i = 0; i < sp.size(); i++) {
+                    if (sp.valueAt(i) == true) {
                         selectedEmployees.add(EventManagementFragment.employeeList.get(i));
                     }
                 }
@@ -67,9 +67,9 @@ public class AddEmployeeDialog extends AppCompatDialogFragment {
         return builder.create();
     }
 
-    public static interface MyDialogListener
-    {
+    public static interface MyDialogListener {
         public void selectedEmployees(ArrayList<Employee> selectedEmployees);
+
         public void userCanceled();
     }
 }

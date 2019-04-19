@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -13,31 +14,38 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.example.clay.event_manager.adapters.DeleteEmployeeAdapter;
 import com.example.clay.event_manager.adapters.SelectEmployeeAdapter;
+import com.example.clay.event_manager.fragments.EventManagementFragment;
 import com.example.clay.event_manager.models.Employee;
 import com.example.clay.left.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 public class AddEventActivity extends AppCompatActivity {
 
-
     EditText titleEditText, startDateEditText, startTimeEditText, endDateEditText, endTimeEditText,
-    locationEditText;
+            locationEditText, noteEditText;
     TextView startDowTextView, endDowTextView;
     Button addEmployeeButton, cancelButton, okButton;
     ListView employeeListView;
 
     Calendar calendar = Calendar.getInstance();
-    SimpleDateFormat sdfDayMonthYear = new SimpleDateFormat("dd/MM/yyyy");;
+    SimpleDateFormat sdfDayMonthYear = new SimpleDateFormat("dd/MM/yyyy");
+    ;
     SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEE");
     SimpleDateFormat sdfTime = new SimpleDateFormat("hh:mm a");
     DatePickerDialog.OnDateSetListener dateSetListener;
     TimePickerDialog.OnTimeSetListener timeSetListener;
+    View.OnFocusChangeListener editTextListener;
     View currentView;
 
     public static ArrayList<Employee> selectedEmployees;
@@ -75,6 +83,7 @@ public class AddEventActivity extends AppCompatActivity {
         endDateEditText = (EditText) findViewById(R.id.end_date_edit_text);
         endTimeEditText = (EditText) findViewById(R.id.end_time_edit_text);
         locationEditText = (EditText) findViewById(R.id.location_edit_text);
+        noteEditText = (EditText) findViewById(R.id.note_edit_text);
 
         startDowTextView = (TextView) findViewById(R.id.start_dow_textview);
         endDowTextView = (TextView) findViewById(R.id.end_dow_textview);
@@ -85,6 +94,7 @@ public class AddEventActivity extends AppCompatActivity {
 
         employeeListView = (ListView) findViewById(R.id.employees_listview);
     }
+
     private void addEvents() {
         addEmployeeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,7 +124,7 @@ public class AddEventActivity extends AppCompatActivity {
             public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
                 calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 calendar.set(Calendar.MINUTE, minute);
-                if(currentView == startTimeEditText) {
+                if (currentView == startTimeEditText) {
                     startTimeEditText.setText(sdfTime.format(calendar.getTime()));
                 } else {
                     endTimeEditText.setText(sdfTime.format(calendar.getTime()));
@@ -125,8 +135,8 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 calendar = Calendar.getInstance();
-                Log.d("debug","startDateEditText clicked");
-                if(!startDateEditText.getText().equals("")) {
+                Log.d("debug", "startDateEditText clicked");
+                if (!startDateEditText.getText().equals("")) {
                     try {
                         calendar.setTime(sdfDayMonthYear.parse(startDateEditText.getText().toString()));
                     } catch (Exception e) {
@@ -145,7 +155,7 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 calendar = Calendar.getInstance();
-                if(!endDateEditText.getText().equals("")) {
+                if (!endDateEditText.getText().equals("")) {
                     try {
                         calendar.setTime(sdfDayMonthYear.parse(endDateEditText.getText().toString()));
                     } catch (Exception e) {
@@ -164,11 +174,11 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 calendar = Calendar.getInstance();
-                if(!startTimeEditText.getText().equals("")) {
+                if (!startTimeEditText.getText().equals("")) {
                     try {
                         calendar.setTime(sdfTime.parse(startTimeEditText.getText().toString()));
-                        Log.d("debug","get Time: "+calendar.get(Calendar.HOUR)+
-                                ":"+calendar.get(Calendar.MINUTE)+"/"+calendar.get(Calendar.AM_PM));
+                        Log.d("debug", "get Time: " + calendar.get(Calendar.HOUR) +
+                                ":" + calendar.get(Calendar.MINUTE) + "/" + calendar.get(Calendar.AM_PM));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -184,7 +194,7 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 calendar = Calendar.getInstance();
-                if(!endTimeEditText.getText().equals("")) {
+                if (!endTimeEditText.getText().equals("")) {
                     try {
                         calendar.setTime(sdfTime.parse(endTimeEditText.getText().toString()));
                     } catch (Exception e) {
@@ -198,7 +208,93 @@ public class AddEventActivity extends AppCompatActivity {
                         mm, false).show();
             }
         });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+        editTextListener = new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b == false) {
+                    if (((TextView) view).getText().toString().isEmpty()) {
+                        ((TextView) view).setError("Không được để trống");
+                    }
+                }
+            }
+        };
+//        titleEditText.setOnFocusChangeListener(editTextListener);
+//        startDateEditText.setOnFocusChangeListener(editTextListener);
+//        endDateEditText.setOnFocusChangeListener(editTextListener);
+//        startTimeEditText.setOnFocusChangeListener(editTextListener);
+//        endTimeEditText.setOnFocusChangeListener(editTextListener);
+//        locationEditText.setOnFocusChangeListener(editTextListener);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!titleEditText.getText().toString().isEmpty() &&
+                        !startDateEditText.getText().toString().isEmpty() &&
+                        !startDateEditText.getText().toString().isEmpty() &&
+                        !startDateEditText.getText().toString().isEmpty() &&
+                        !startDateEditText.getText().toString().isEmpty() &&
+                        !startDateEditText.getText().toString().isEmpty()) {
+                    String employeeIds = "";
+                    if (selectedEmployees.size() > 0) {
+                        for (Employee e : selectedEmployees) {
+                            employeeIds += e + ",";
+                        }
+                        employeeIds = employeeIds.substring(0, employeeIds.length() - 2);
+                    }
+                    HashMap<String, String> data = new HashMap<>();
+                    data.put("ten", titleEditText.getText().toString());
+                    data.put("ngaybatdau", startDateEditText.getText().toString());
+                    data.put("ngayketthuc", endDateEditText.getText().toString());
+                    data.put("giobatdau", startTimeEditText.getText().toString());
+                    data.put("gioketthuc", endTimeEditText.getText().toString());
+                    data.put("diadiem", locationEditText.getText().toString());
+                    data.put("nhanvienid", employeeIds);
+                    data.put("ghichu", noteEditText.getText().toString());
+                    EventManagementFragment.database.collection("sukien").add(data)
+                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
+                                    Toast.makeText(AddEventActivity.this, "Thêm sự kiện thành công", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(AddEventActivity.this, "Thêm sự kiện thất bại", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                } else {
+                    if (titleEditText.getText().toString().isEmpty()) {
+                        titleEditText.setError("Xin mời nhập");
+                    }
+                    if (startDateEditText.getText().toString().isEmpty()) {
+                        startDateEditText.setError("Xin mời nhập");
+                    }
+                    if (endDateEditText.getText().toString().isEmpty()) {
+                        endDateEditText.setError("Xin mời nhập");
+                    }
+                    if (startTimeEditText.getText().toString().isEmpty()) {
+                        startTimeEditText.setError("Xin mời nhập");
+                    }
+                    if (endTimeEditText.getText().toString().isEmpty()) {
+                        endTimeEditText.setError("Xin mời nhập");
+                    }
+                    if (locationEditText.getText().toString().isEmpty()) {
+                        locationEditText.setError("Xin mời nhập");
+                    }
+                    if (noteEditText.getText().toString().isEmpty()) {
+                        noteEditText.setError("Xin mời nhập");
+                    }
+                }
+            }
+        });
     }
+
     private void openAddEmployeeDialog() {
 //        AddEmployeeDialog addEmployeeDialog = new AddEmployeeDialog();
 //        addEmployeeDialog.show(getSupportFragmentManager(),"Chọn Nhân sự");
@@ -235,7 +331,7 @@ public class AddEventActivity extends AppCompatActivity {
                 addEmployeeDialog.dismiss();
             }
         });
-        if(!isFinishing()) {
+        if (!isFinishing()) {
             addEmployeeDialog.show();
         }
     }
