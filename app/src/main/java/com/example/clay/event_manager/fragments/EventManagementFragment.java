@@ -5,56 +5,45 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
 import android.widget.CalendarView;
 import android.widget.ListView;
-import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.clay.event_manager.activities.AddEventActivity;
+import com.example.clay.event_manager.activities.EventDetailsActivity;
 import com.example.clay.event_manager.adapters.EventAdapter;
+import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
 import com.example.clay.event_manager.models.Employee;
-import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.repositories.EmployeeRepository;
 import com.example.clay.event_manager.repositories.EventRepository;
 import com.example.clay.event_manager.utils.CalendarUtil;
 import com.example.clay.event_manager.utils.Constants;
-import com.example.clay.event_manager.utils.DatabaseAccess;
 import com.example.clay.left.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class EventManagementFragment extends Fragment {
+public class EventManagementFragment extends Fragment implements IOnDataLoadComplete {
 
     public static ArrayList<Employee> employeeList;
 
-    FloatingActionButton addButton;
     ListView eventsListView;
+    TextView dayTitleTextView;
     CalendarView calendarView;
     EventAdapter eventAdapter;
-    public static ArrayList<Event> currentDateEvents;
+    boolean isFirstLoad = true;
 
     public EventManagementFragment() {
         // Required empty public constructor
@@ -75,28 +64,20 @@ public class EventManagementFragment extends Fragment {
         addEvents();
 
         String date = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
-        currentDateEvents = new ArrayList<>();
-        eventAdapter = new EventAdapter(getActivity(), EventManagementFragment.currentDateEvents);
-        eventsListView.setAdapter(eventAdapter);
+        dayTitleTextView.setText(Constants.DAY_TITLE_MAIN_FRAGMENT + date);
 
-        //HERE!!!
-        currentDateEvents = EventRepository.getInstance().getEventsOnDate(date);
-        eventAdapter.notifyDataSetChanged();
-//        EventRepository.getEventsOnDate(new EventRepository.MyEventCallback() {
-//            @Override
-//            public void onCallback(ArrayList<Event> eventList) {
-//                currentDateEvents = eventList;
-//                eventAdapter.notifyDataSetChanged();
-//            }
-//        }, date);
-//        employeeList = new ArrayList<>();
-        employeeList = EmployeeRepository.getInstance().getAllEmployees();
-        Log.d("debug", "Event Manager employee size = "+employeeList.size());
+        //Update eventList at EventRepository & employeeList at EmployeeRepository
+        EventRepository.getInstance(this);
+        EmployeeRepository.getInstance(this);
+
+        eventAdapter = new EventAdapter(getActivity(), EventRepository.getInstance(null)
+                .getEventsOnDate(date));
+        eventsListView.setAdapter(eventAdapter);
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.main, menu);
+        inflater.inflate(R.menu.main_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
     @Override
@@ -107,17 +88,15 @@ public class EventManagementFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        //Mở cửa sổ thêm sự kiện
         if (id == R.id.action_add_e) {
             Intent intent = new Intent(getActivity(), AddEventActivity.class);
             startActivity(intent);
             return true;
         }
+        //Xem sự kiện theo danh sách dọc
         if (id == R.id.action_list_view) {
             Toast.makeText(getActivity(),"Xem theo danh sách",Toast.LENGTH_SHORT).show();
             return true;
@@ -127,20 +106,13 @@ public class EventManagementFragment extends Fragment {
     }
 
     private void connectViews(View v) {
-
-        addButton = (FloatingActionButton) v.findViewById(R.id.add_button);
         eventsListView = (ListView) v.findViewById(R.id.events_listview);
         calendarView = (CalendarView) v.findViewById(R.id.calendar_view);
+        dayTitleTextView = (TextView) v.findViewById(R.id.day_title_text_view);
     }
 
     private void addEvents() {
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), AddEventActivity.class);
-                startActivity(intent);
-            }
-        });
+        //Cập nhật danh sách sự kiện theo ngày đã chọn
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int dayOfMonth) {
@@ -148,23 +120,38 @@ public class EventManagementFragment extends Fragment {
                 CalendarUtil.getInstance().getCalendar().set(Calendar.YEAR, year);
                 CalendarUtil.getInstance().getCalendar().set(Calendar.MONTH, month);
                 CalendarUtil.getInstance().getCalendar().set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
                 String date = CalendarUtil.getInstance().getSdfDayMonthYear()
                         .format(CalendarUtil.getInstance().getCalendar().getTime());
 
-                currentDateEvents = EventRepository.getInstance().getEventsOnDate(date);
-                eventAdapter.notifyDataSetChanged();
-//                EventRepository.getEventsOnDate(new EventRepository.MyEventCallback() {
-//                    @Override
-//                    public void onCallback(ArrayList<Event> eventList) {
-//                        currentDateEvents = eventList;
-//                        Log.d("debug", "EventManagementFragment: onSelectedDayChanged: currentDateEvents size = "
-//                        +currentDateEvents.size());
-//                        eventAdapter.notifyDataSetChanged();
-//                    }
-//                }, date);
+                dayTitleTextView.setText(Constants.DAY_TITLE_MAIN_FRAGMENT + date);
+                eventAdapter.notifyDataSetChanged(date);
             }
         });
 
+        //Xem chi tiết sự kiện
+        eventsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Intent eventDetailsIntent = new Intent(getActivity(), EventDetailsActivity.class);
+                eventDetailsIntent.putExtra("position", position);
+                startActivity(eventDetailsIntent);
+            }
+        });
     }
 
+    //Cập nhật danh sách sự kiện của ngày hiện tại khi mở ứng dụng
+    @Override
+    public void notifyOnLoadComplete() {
+        if (isFirstLoad) {
+            String date = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
+            eventAdapter.notifyDataSetChanged(date);
+            isFirstLoad = false;
+        }
+    }
+
+    @Override
+    public void notifyError() {
+
+    }
 }

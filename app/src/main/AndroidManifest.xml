@@ -9,6 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name="com.example.clay.event_manager.activities.EventDetailsActivity"/>
+        <activity android:name="com.example.clay.event_manager.activities.RootActivity$EventDetailsActivity" />
         <activity
             android:name="com.example.clay.event_manager.activities.RootActivity"
             android:label="@string/app_name"
@@ -21,7 +23,7 @@
         <activity
             android:name="com.example.clay.event_manager.activities.AddEventActivity"
             android:label="Thêm sự kiện"
-            android:theme="@style/Theme.AppCompat.Light"/>
+            android:theme="@style/Theme.AppCompat.Light" />
     </application>
 
 </manifest>

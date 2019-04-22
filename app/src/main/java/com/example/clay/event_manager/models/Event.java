@@ -10,22 +10,20 @@ public class Event {
     private String gioBatDau;
     private String gioKetThuc;
     private String diaDiem;
-    private String nhanVienId;
     private String ghiChu;
 
     public Event() {
     }
 
     public Event(String id, String ten, String ngayBatDau, String ngayKetThuc, String gioBatDau, String gioKetThuc,
-                 String diaDiem, String nhanVienId, String ghiChu) {
-        this.id = "";
+                 String diaDiem, String ghiChu) {
+        this.id = id;
         this.ten = ten;
         this.ngayBatDau = ngayBatDau;
         this.ngayKetThuc = ngayKetThuc;
         this.gioBatDau = gioBatDau;
         this.gioKetThuc = gioKetThuc;
         this.diaDiem = diaDiem;
-        this.nhanVienId = nhanVienId;
         this.ghiChu = ghiChu;
     }
 
@@ -83,14 +81,6 @@ public class Event {
 
     public void setDiaDiem(String diaDiem) {
         this.diaDiem = diaDiem;
-    }
-
-    public String getNhanVienId() {
-        return nhanVienId;
-    }
-
-    public void setNhanVienId(String nhanVienId) {
-        this.nhanVienId = nhanVienId;
     }
 
     public String getGhiChu() {

@@ -7,6 +7,9 @@ public class CalendarUtil {
     SimpleDateFormat sdfDayMonthYear = new SimpleDateFormat("dd/MM/yyyy");;
     SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEE");
     SimpleDateFormat sdfTime = new SimpleDateFormat("hh:mm a");
+    SimpleDateFormat sdfDayMonth = new SimpleDateFormat("dd/MM");
+
+
     Calendar calendar;
     static CalendarUtil instance;
 

@@ -21,6 +21,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/day_title_text_view"
+                android:textSize="@dimen/normal_text"
+                android:paddingLeft="20dp"
+                android:textStyle="bold"/>
             <ListView
                 android:id="@+id/events_listview"
                 android:layout_width="match_parent"

@@ -8,7 +8,6 @@ public class Constants {
     public static String EVENT_END_TIME = "gioketthuc";
     public static String EVENT_LOCATION = "diadiem";
     public static String EVENT_NOTE = "ghichu";
-    public static String EVENT_EMPLOYEE_ID = "nhanvienid";
     public static String EVENT_NAME = "ten";
 
     public static String EMPLOYEE_COLLECTION = "nhanvien";
@@ -20,5 +19,13 @@ public class Constants {
     public static String EMPLOYEE_PASSWORD = "matkhau";
     public static String EMPLOYEE_DAY_OF_BIRTH = "ngaysinh";
     public static String EMPLOYEE_PHONE_NUMBER = "sdt";
+
+    public static String DAY_TITLE_MAIN_FRAGMENT = "Sự kiện trong ngày ";
+
+    public static String SALARY_COLLECTION = "luong";
+    public static String SALARY_EVENT_ID = "sukienid";
+    public static String SALARY_EMPLOYEE_ID = "nhanvienid";
+    public static String SALARY_SALARY = "luong";
+
 
 }

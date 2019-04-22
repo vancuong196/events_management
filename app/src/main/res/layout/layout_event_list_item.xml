@@ -5,8 +5,8 @@
     android:layout_height="60dp"
     android:weightSum="5"
     android:orientation="horizontal"
-    android:layout_marginLeft="15dp"
-    android:layout_marginRight="15dp">
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp">
     <TextView
         android:id="@+id/event_time_text_view"
         android:layout_width="0dp"

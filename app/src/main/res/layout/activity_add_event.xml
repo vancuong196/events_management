@@ -1,125 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:layout_height="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_height="match_parent">
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp">
+
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="vertical"
-            android:focusableInTouchMode="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentTop="true">
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="10dp"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tên sự kiện"/>
+                android:text="Tên sự kiện" />
+
             <EditText
                 android:id="@+id/title_edit_text"
-                android:nextFocusUp="@id/title_edit_text"
-                android:nextFocusLeft="@id/title_edit_text"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:nextFocusLeft="@id/title_edit_text"
+                android:nextFocusUp="@id/title_edit_text" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Bắt đầu"/>
+                android:layout_marginTop="10dp"
+                android:text="Bắt đầu" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="6">
-                <EditText
-                    android:focusable="false"
-                    android:clickable="true"
-                    android:id="@+id/start_date_edit_text"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3"
-                    android:hint="Ngày bắt đầu"/>
+
                 <TextView
+                    android:id="@+id/start_dow_textview"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textAlignment="center"
-                    android:textSize="@dimen/normal_text"
-                    android:id="@+id/start_dow_textview"/>
+                    android:textSize="@dimen/normal_text" />
+
                 <EditText
-                    android:focusable="false"
+                    android:id="@+id/start_date_edit_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
                     android:clickable="true"
+                    android:focusable="false"
+                    android:hint="Ngày bắt đầu" />
+
+                <EditText
                     android:id="@+id/start_time_edit_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:hint="Giờ bắt đầu"/>
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:hint="Giờ bắt đầu" />
             </LinearLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Kết thúc"/>
+                android:text="Kết thúc" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="6">
+
+                <TextView
+                    android:id="@+id/end_dow_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/normal_text" />
+
                 <EditText
                     android:id="@+id/end_date_edit_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
-                    android:focusable="false"
                     android:clickable="true"
-                    android:hint="Ngày kết thúc"/>
+                    android:focusable="false"
+                    android:hint="Ngày kết thúc" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:layout_weight="1"
-                    android:textSize="@dimen/normal_text"
-                    android:id="@+id/end_dow_textview"/>
                 <EditText
                     android:id="@+id/end_time_edit_text"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2"
 
-                    android:focusable="false"
                     android:clickable="true"
-                    android:hint="Giờ kết thúc"/>
+                    android:focusable="false"
+                    android:hint="Giờ kết thúc" />
             </LinearLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Địa điểm"/>
+                android:layout_marginTop="10dp"
+                android:text="Địa điểm" />
+
             <EditText
                 android:id="@+id/location_edit_text"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
+
             <TextView
+                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nhân sự"/>
+                android:text="Nhân sự" />
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <!--<ScrollView-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content">-->
-                    <ListView
-                        android:id="@+id/employees_listview"
-                        android:layout_width="match_parent"
-                        android:layout_height="180dp">
-                    </ListView>
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content">-->
+                <ListView
+                    android:id="@+id/employees_listview"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"></ListView>
                 <!--</ScrollView>-->
             </RelativeLayout>
+
             <Button
                 android:id="@+id/add_employee_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Thêm nhân sự"/>
+                android:text="Thêm nhân sự" />
+
             <TextView
+                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Ghi chú" />
@@ -128,29 +152,32 @@
                 android:id="@+id/note_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="40dp"
-                android:minLines="3"
                 android:gravity="top"
-                android:inputType="textMultiLine"/>
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:layout_marginBottom="50dp"/>
         </LinearLayout>
     </ScrollView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:weightSum="2"
-        android:layout_alignParentBottom="true">
+        android:weightSum="2">
+
         <Button
             android:id="@+id/cancel_button"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Hủy"/>
+            android:layout_weight="1"
+            android:text="Hủy" />
+
         <Button
             android:id="@+id/ok_button"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="OK"/>
+            android:layout_weight="1"
+            android:text="OK" />
     </LinearLayout>
 </RelativeLayout>
