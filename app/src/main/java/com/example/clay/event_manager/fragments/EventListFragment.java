@@ -1,12 +1,13 @@
 package com.example.clay.event_manager.fragments;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,42 +17,39 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CalendarView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.clay.event_manager.R;
 import com.example.clay.event_manager.activities.AddEventActivity;
 import com.example.clay.event_manager.activities.EventDetailsActivity;
 import com.example.clay.event_manager.activities.RootActivity;
+import com.example.clay.event_manager.adapters.EventListViewAdapter;
 import com.example.clay.event_manager.adapters.MainViewEventAdapter;
 import com.example.clay.event_manager.customlistviews.CustomListView;
 import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
+import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.repositories.EmployeeRepository;
 import com.example.clay.event_manager.repositories.EventRepository;
 import com.example.clay.event_manager.repositories.SalaryRepository;
 import com.example.clay.event_manager.utils.CalendarUtil;
 import com.example.clay.event_manager.utils.Constants;
-import com.example.clay.event_manager.R;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class EventManagementFragment extends Fragment implements IOnDataLoadComplete {
+public class EventListFragment extends Fragment implements IOnDataLoadComplete {
 
+    EventListViewAdapter listViewAdapter;
+    RecyclerView recyclerView;
+    boolean isFirstLoad = true;
+    List<Event> eventsList;
+    String currentDate;
     private static final int RESULT_FROM_DELETE_EVENT_INTENT = 1;
     private static final int RESULT_FROM_ADD_EVENT_INTENT = 2;
-
-    CustomListView eventsListView;
-    TextView dayTitleTextView;
-    CalendarView calendarView;
-    MainViewEventAdapter mainViewEventAdapter;
-    boolean isFirstLoad = true;
-
-    String currentDate;
-
-    public EventManagementFragment() {
+    public EventListFragment() {
         // Required empty public constructor
     }
 
@@ -60,27 +58,14 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_event, container, false);
+        return inflater.inflate(R.layout.fragment_event_list, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         connectViews(view);
-        addEvents();
-
-        currentDate = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
-        Log.d("debug", "initiated current date: " + currentDate);
-        dayTitleTextView.setText(Constants.DAY_TITLE_MAIN_FRAGMENT + currentDate);
-
-        //Update eventList at EventRepository & employeeList at EmployeeRepository
         EventRepository.getInstance(this);
-        EmployeeRepository.getInstance(this);
-        SalaryRepository.getInstance(this);
-
-        mainViewEventAdapter = new MainViewEventAdapter(getActivity(), EventRepository.getInstance(null)
-                .getEventsOnDate(currentDate));
-        eventsListView.setAdapter(mainViewEventAdapter);
     }
 
     @Override
@@ -101,26 +86,66 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
         //Mở cửa sổ thêm sự kiện
         if (id == R.id.action_add_e) {
             Intent intent = new Intent(getActivity(), AddEventActivity.class);
-            startActivityForResult(intent, RESULT_FROM_ADD_EVENT_INTENT);
+            startActivity(intent);
+          //  startActivityForResult(intent, RESULT_FROM_ADD_EVENT_INTENT);
             return true;
         }
         //Xem sự kiện theo danh sách dọc
         if (id == R.id.action_list_view) {
             RootActivity activity = (RootActivity) getActivity();
-            activity.openEventListFragment();
+            activity.openEventManagementFragment();
             return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
 
     private void connectViews(View v) {
-        eventsListView = (CustomListView) v.findViewById(R.id.events_listview);
-        calendarView = (CalendarView) v.findViewById(R.id.calendar_view);
-        dayTitleTextView = (TextView) v.findViewById(R.id.day_title_text_view);
+        recyclerView =  v.findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        List<Event> data = new ArrayList<Event>() {
+        };
+        eventsList = new ArrayList<>();
+        listViewAdapter = new EventListViewAdapter(eventsList,getActivity());
+        recyclerView.setAdapter(listViewAdapter);
+        initDataForAdapter();
+    }
+    private void initDataForAdapter() {
+        for (String e: EventRepository.getInstance(null).getAllEvents().keySet())
+        {
+            eventsList.add(EventRepository.getInstance(null).getAllEvents().get(e));
+        };
+        listViewAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RESULT_FROM_DELETE_EVENT_INTENT && resultCode == Activity.RESULT_OK) {
+            Log.d("debug", "delete? from EventDetails to EventManagement: " + data.getBooleanExtra("delete?", false));
+            if(data.getBooleanExtra("delete?", false)) {
+                EventRepository.getInstance(null).deleteEvent(data.getStringExtra("eventId"), new EventRepository.MyDeleteEventCallback() {
+                    @Override
+                    public void onCallback(boolean deleteEventSucceed, boolean deleteSalariesSucceed) {
+                        if(deleteEventSucceed && deleteSalariesSucceed) {
+                            Toast.makeText(getActivity(), "Xóa sự kiện thành công", Toast.LENGTH_SHORT).show();
+                            listViewAdapter.notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(getActivity(), "Xóa sự kiện thất bại", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        } else if (requestCode == RESULT_FROM_ADD_EVENT_INTENT && resultCode == Activity.RESULT_OK) {
+            if(data.getBooleanExtra("added?", false)) {
+                listViewAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     private void addEvents() {
+        /*
         //Cập nhật danh sách sự kiện theo ngày đã chọn
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
@@ -146,41 +171,11 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
                 startActivityForResult(eventDetailsIntent, RESULT_FROM_DELETE_EVENT_INTENT);
             }
         });
+        */
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RESULT_FROM_DELETE_EVENT_INTENT && resultCode == Activity.RESULT_OK) {
-            Log.d("debug", "delete? from EventDetails to EventManagement: " + data.getBooleanExtra("delete?", false));
-            if(data.getBooleanExtra("delete?", false)) {
-                EventRepository.getInstance(null).deleteEvent(data.getStringExtra("eventId"), new EventRepository.MyDeleteEventCallback() {
-                    @Override
-                    public void onCallback(boolean deleteEventSucceed, boolean deleteSalariesSucceed) {
-                        if(deleteEventSucceed && deleteSalariesSucceed) {
-                            Toast.makeText(getActivity(), "Xóa sự kiện thành công", Toast.LENGTH_SHORT).show();
-                            mainViewEventAdapter.notifyDataSetChanged(currentDate);
-                        } else {
-                            Toast.makeText(getActivity(), "Xóa sự kiện thất bại", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-            }
-        } else if (requestCode == RESULT_FROM_ADD_EVENT_INTENT && resultCode == Activity.RESULT_OK) {
-            if(data.getBooleanExtra("added?", false)) {
-                mainViewEventAdapter.notifyDataSetChanged(currentDate);
-            }
-        }
-    }
-
     //Cập nhật danh sách sự kiện của ngày hiện tại khi mở ứng dụng
     @Override
     public void notifyOnLoadComplete() {
-        if (isFirstLoad) {
-            String date = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
-            mainViewEventAdapter.notifyDataSetChanged(date);
-            isFirstLoad = false;
-        }
     }
 
     @Override
