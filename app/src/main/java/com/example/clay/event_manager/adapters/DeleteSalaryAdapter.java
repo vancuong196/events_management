@@ -2,6 +2,7 @@ package com.example.clay.event_manager.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,5 +87,11 @@ public class DeleteSalaryAdapter extends BaseAdapter {
         });
 
         return view;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        Log.d("debug", "delete salary adapter: data set changed:" + salariesIds.size());
+        super.notifyDataSetChanged();
     }
 }
