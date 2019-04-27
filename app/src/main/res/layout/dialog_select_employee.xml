@@ -18,12 +18,12 @@
         android:textSize="20dp"
         android:textStyle="bold" />
 
-    <ListView
+    <com.example.clay.event_manager.customlistviews.CustomListView
         android:id="@+id/select_employee_listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/button_layout"
-        android:layout_below="@id/title"></ListView>
+        android:layout_below="@id/title"></com.example.clay.event_manager.customlistviews.CustomListView>
     <!--</ScrollView>-->
     <LinearLayout
         android:id="@+id/button_layout"

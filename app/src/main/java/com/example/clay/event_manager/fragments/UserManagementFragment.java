@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.clay.left.R;
+import com.example.clay.event_manager.R;
 
 /**
  * A simple {@link Fragment} subclass.

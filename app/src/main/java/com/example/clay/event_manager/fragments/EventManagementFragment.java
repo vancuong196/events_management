@@ -1,11 +1,13 @@
 package com.example.clay.event_manager.fragments;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,16 +22,16 @@ import android.widget.Toast;
 
 import com.example.clay.event_manager.activities.AddEventActivity;
 import com.example.clay.event_manager.activities.EventDetailsActivity;
-import com.example.clay.event_manager.adapters.EventAdapter;
+import com.example.clay.event_manager.adapters.MainViewEventAdapter;
+import com.example.clay.event_manager.customlistviews.CustomListView;
 import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
-import com.example.clay.event_manager.models.Employee;
 import com.example.clay.event_manager.repositories.EmployeeRepository;
 import com.example.clay.event_manager.repositories.EventRepository;
+import com.example.clay.event_manager.repositories.SalaryRepository;
 import com.example.clay.event_manager.utils.CalendarUtil;
 import com.example.clay.event_manager.utils.Constants;
-import com.example.clay.left.R;
+import com.example.clay.event_manager.R;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -37,13 +39,16 @@ import java.util.Calendar;
  */
 public class EventManagementFragment extends Fragment implements IOnDataLoadComplete {
 
-    public static ArrayList<Employee> employeeList;
+    private static final int RESULT_FROM_DELETE_EVENT_INTENT = 1;
+    private static final int RESULT_FROM_ADD_EVENT_INTENT = 2;
 
-    ListView eventsListView;
+    CustomListView eventsListView;
     TextView dayTitleTextView;
     CalendarView calendarView;
-    EventAdapter eventAdapter;
+    MainViewEventAdapter mainViewEventAdapter;
     boolean isFirstLoad = true;
+
+    String currentDate;
 
     public EventManagementFragment() {
         // Required empty public constructor
@@ -63,16 +68,18 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
         connectViews(view);
         addEvents();
 
-        String date = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
-        dayTitleTextView.setText(Constants.DAY_TITLE_MAIN_FRAGMENT + date);
+        currentDate = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
+        Log.d("debug", "initiated current date: " + currentDate);
+        dayTitleTextView.setText(Constants.DAY_TITLE_MAIN_FRAGMENT + currentDate);
 
         //Update eventList at EventRepository & employeeList at EmployeeRepository
         EventRepository.getInstance(this);
         EmployeeRepository.getInstance(this);
+        SalaryRepository.getInstance(this);
 
-        eventAdapter = new EventAdapter(getActivity(), EventRepository.getInstance(null)
-                .getEventsOnDate(date));
-        eventsListView.setAdapter(eventAdapter);
+        mainViewEventAdapter = new MainViewEventAdapter(getActivity(), EventRepository.getInstance(null)
+                .getEventsOnDate(currentDate));
+        eventsListView.setAdapter(mainViewEventAdapter);
     }
 
     @Override
@@ -93,7 +100,7 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
         //Mở cửa sổ thêm sự kiện
         if (id == R.id.action_add_e) {
             Intent intent = new Intent(getActivity(), AddEventActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, RESULT_FROM_ADD_EVENT_INTENT);
             return true;
         }
         //Xem sự kiện theo danh sách dọc
@@ -106,7 +113,7 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
     }
 
     private void connectViews(View v) {
-        eventsListView = (ListView) v.findViewById(R.id.events_listview);
+        eventsListView = (CustomListView) v.findViewById(R.id.events_listview);
         calendarView = (CalendarView) v.findViewById(R.id.calendar_view);
         dayTitleTextView = (TextView) v.findViewById(R.id.day_title_text_view);
     }
@@ -116,16 +123,15 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int dayOfMonth) {
-//                Toast.makeText(getContext(), dayOfMonth + "/" + (month + 1) + "/" + year, Toast.LENGTH_SHORT).show();
                 CalendarUtil.getInstance().getCalendar().set(Calendar.YEAR, year);
                 CalendarUtil.getInstance().getCalendar().set(Calendar.MONTH, month);
                 CalendarUtil.getInstance().getCalendar().set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                String date = CalendarUtil.getInstance().getSdfDayMonthYear()
+                currentDate = CalendarUtil.getInstance().getSdfDayMonthYear()
                         .format(CalendarUtil.getInstance().getCalendar().getTime());
 
-                dayTitleTextView.setText(Constants.DAY_TITLE_MAIN_FRAGMENT + date);
-                eventAdapter.notifyDataSetChanged(date);
+                dayTitleTextView.setText(Constants.DAY_TITLE_MAIN_FRAGMENT + currentDate);
+                mainViewEventAdapter.notifyDataSetChanged(currentDate);
             }
         });
 
@@ -134,10 +140,35 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Intent eventDetailsIntent = new Intent(getActivity(), EventDetailsActivity.class);
-                eventDetailsIntent.putExtra("position", position);
-                startActivity(eventDetailsIntent);
+                eventDetailsIntent.putExtra("eventId", mainViewEventAdapter.getEventIds()[position]);
+                startActivityForResult(eventDetailsIntent, RESULT_FROM_DELETE_EVENT_INTENT);
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RESULT_FROM_DELETE_EVENT_INTENT && resultCode == Activity.RESULT_OK) {
+            Log.d("debug", "delete? from EventDetails to EventManagement: " + data.getBooleanExtra("delete?", false));
+            if(data.getBooleanExtra("delete?", false)) {
+                EventRepository.getInstance(null).deleteEvent(data.getStringExtra("eventId"), new EventRepository.MyDeleteEventCallback() {
+                    @Override
+                    public void onCallback(boolean deleteEventSucceed, boolean deleteSalariesSucceed) {
+                        if(deleteEventSucceed && deleteSalariesSucceed) {
+                            Toast.makeText(getActivity(), "Xóa sự kiện thành công", Toast.LENGTH_SHORT).show();
+                            mainViewEventAdapter.notifyDataSetChanged(currentDate);
+                        } else {
+                            Toast.makeText(getActivity(), "Xóa sự kiện thất bại", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        } else if (requestCode == RESULT_FROM_ADD_EVENT_INTENT && resultCode == Activity.RESULT_OK) {
+            if(data.getBooleanExtra("added?", false)) {
+                mainViewEventAdapter.notifyDataSetChanged(currentDate);
+            }
+        }
     }
 
     //Cập nhật danh sách sự kiện của ngày hiện tại khi mở ứng dụng
@@ -145,7 +176,7 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
     public void notifyOnLoadComplete() {
         if (isFirstLoad) {
             String date = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
-            eventAdapter.notifyDataSetChanged(date);
+            mainViewEventAdapter.notifyDataSetChanged(date);
             isFirstLoad = false;
         }
     }

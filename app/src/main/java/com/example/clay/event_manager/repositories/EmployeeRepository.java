@@ -88,6 +88,14 @@ public class EmployeeRepository {
                 });
     }
 
+    public ArrayList<String> getEmployeesIdsFromSalariesIds(ArrayList<String> salariesIds) {
+        ArrayList<String> employeesIds = new ArrayList<>();
+        for(String salaryId : salariesIds) {
+            employeesIds.add(SalaryRepository.getInstance(null).getAllSalaries().get(salaryId).getEmployeeId());
+        }
+        return employeesIds;
+    }
+
     private interface MyEmployeeCallback {
         void onCallback(HashMap<String, Employee> employeeList);
     }

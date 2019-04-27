@@ -10,24 +10,25 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.example.clay.event_manager.models.Employee;
-import com.example.clay.left.R;
+import com.example.clay.event_manager.R;
+import com.example.clay.event_manager.models.Salary;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SelectEmployeeAdapter extends BaseAdapter {
+public class SelectEmployeeInAddEventAdapter extends BaseAdapter {
 
     private final Activity context;
-    private HashMap<String, Employee> selectedEmployees;
+    private ArrayList<String> selectedEmployeesIds;
     private HashMap<String, Employee> allEmployees;
     private String[] allEmployeesIds;
 
-    public SelectEmployeeAdapter(Activity context, HashMap<String, Employee> selectedEmployees,
-                                 HashMap<String, Employee> allEmployees) {
+    public SelectEmployeeInAddEventAdapter(Activity context, ArrayList<String> selectedEmployeesIds,
+                                           HashMap<String, Employee> allEmployees) {
         this.context = context;
-        this.selectedEmployees = selectedEmployees;
+        this.selectedEmployeesIds = selectedEmployeesIds;
         this.allEmployees = allEmployees;
         allEmployeesIds = allEmployees.keySet().toArray(new String[allEmployees.size()]);
-        Log.d("debug", "SelectEmployeeAdapter: ");
     }
 
     @Override
@@ -51,15 +52,17 @@ public class SelectEmployeeAdapter extends BaseAdapter {
             view = LayoutInflater.from(context).inflate(R.layout.layout_select_employee_list_item, parent, false);
         }
 
+        //Connect views
         TextView hoTenTextView = (TextView) view.findViewById(R.id.select_hoten_textview);
         TextView chuyenMonTextView = (TextView) view.findViewById(R.id.select_chuyenmon_textview);
         CheckBox addEmployeeCheckBox = (CheckBox) view.findViewById(R.id.add_employee_checkbox);
 
-        hoTenTextView.setText(allEmployees.get(position).getHoTen());
-        chuyenMonTextView.setText(allEmployees.get(position).getChuyenMon());
+        //Fill information
+        hoTenTextView.setText(allEmployees.get(allEmployeesIds[position]).getHoTen());
+        chuyenMonTextView.setText(allEmployees.get(allEmployeesIds[position]).getChuyenMon());
 
-        //PROBLEM IS HERE!!!
-        if (selectedEmployees.size() > 0 && selectedEmployees.get(allEmployeesIds[position]) != null) {
+        //--get checkbox to checked if this employees id is contained in selectedEmployeesIds
+        if (selectedEmployeesIds.size() > 0 && selectedEmployeesIds.contains(allEmployees.get(allEmployeesIds[position]).getId())) {
             addEmployeeCheckBox.setChecked(true);
         } else {
             addEmployeeCheckBox.setChecked(false);
@@ -72,7 +75,16 @@ public class SelectEmployeeAdapter extends BaseAdapter {
         return allEmployeesIds;
     }
 
+    public HashMap<String, Employee> getAllEmployees() {
+        return allEmployees;
+    }
+
     public void setAllEmployeesIds(String[] allEmployeesIds) {
         this.allEmployeesIds = allEmployeesIds;
+    }
+
+    public void notifyDataSetChanged(ArrayList<String> selectedEmployeesIds) {
+        this.selectedEmployeesIds = selectedEmployeesIds;
+        super.notifyDataSetChanged();
     }
 }

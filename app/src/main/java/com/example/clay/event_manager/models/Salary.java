@@ -5,15 +5,17 @@ public class Salary {
     private String eventId;
     private String employeeId;
     private int salary;
+    private boolean paid;
 
     public Salary() {
     }
 
-    public Salary(String salaryId, String eventId, String employeeId, int salary) {
+    public Salary(String salaryId, String eventId, String employeeId, int salary, boolean paid) {
         this.salaryId = salaryId;
         this.eventId = eventId;
         this.employeeId = employeeId;
         this.salary = salary;
+        this.paid = paid;
     }
 
     public String getSalaryId() {
@@ -46,5 +48,13 @@ public class Salary {
 
     public void setSalary(int salary) {
         this.salary = salary;
+    }
+
+    public boolean isPaid() {
+        return paid;
+    }
+
+    public void setPaid(boolean paid) {
+        this.paid = paid;
     }
 }

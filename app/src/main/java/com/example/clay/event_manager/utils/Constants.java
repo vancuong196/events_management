@@ -26,6 +26,6 @@ public class Constants {
     public static String SALARY_EVENT_ID = "sukienid";
     public static String SALARY_EMPLOYEE_ID = "nhanvienid";
     public static String SALARY_SALARY = "luong";
-
+    public static String SALARY_PAID = "dathanhtoan";
 
 }

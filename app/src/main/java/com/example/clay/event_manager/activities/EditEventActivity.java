@@ -6,8 +6,8 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,34 +19,36 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.example.clay.event_manager.R;
-import com.example.clay.event_manager.adapters.DeleteEmployeeAdapter;
-import com.example.clay.event_manager.adapters.SelectEmployeeInAddEventAdapter;
+import com.example.clay.event_manager.adapters.DeleteSalaryAdapter;
+import com.example.clay.event_manager.adapters.EditSalaryAdapter;
+import com.example.clay.event_manager.adapters.SelectEmployeeInEditEventAdapter;
 import com.example.clay.event_manager.customlistviews.CustomListView;
-import com.example.clay.event_manager.models.Employee;
 import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.models.Salary;
 import com.example.clay.event_manager.repositories.EmployeeRepository;
 import com.example.clay.event_manager.repositories.EventRepository;
+import com.example.clay.event_manager.repositories.SalaryRepository;
 import com.example.clay.event_manager.utils.CalendarUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 
-public class AddEventActivity extends AppCompatActivity {
+public class EditEventActivity extends AppCompatActivity {
     EditText titleEditText, startDateEditText, startTimeEditText, endDateEditText, endTimeEditText,
             locationEditText, noteEditText;
     TextView startDowTextView, endDowTextView;
-    Button addEmployeeButton, cancelButton, okButton;
-    CustomListView deleteEmployeeListView;
+    Button addEmployeesButton, cancelButton, okButton;
+    CustomListView salariesListView;
 
     DatePickerDialog.OnDateSetListener dateSetListener;
     TimePickerDialog.OnTimeSetListener timeSetListener;
     View currentView;
 
-    ArrayList<String> selectedEmployeesIds;
-    DeleteEmployeeAdapter deleteAdapter;
-    SelectEmployeeInAddEventAdapter selectAdapder;
+    String eventId;
+    Event event;
+    ArrayList<String> selectedSalariesIds;
+    DeleteSalaryAdapter deleteSalaryAdapter;
+    SelectEmployeeInEditEventAdapter selectEmployeeAdapter;
 
     Calendar calendar = Calendar.getInstance();
 
@@ -55,134 +57,72 @@ public class AddEventActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_event);
+        setContentView(R.layout.activity_edit_event);
         context = this;
 
         connectViews();
+
+        eventId = getIntent().getStringExtra("eventId");
+        event = EventRepository.getInstance(null).getAllEvents().get(eventId);
+        selectedSalariesIds = new ArrayList<>(SalaryRepository.getInstance(null).getSalariesByEventId(eventId).keySet());
+
+        deleteSalaryAdapter = new DeleteSalaryAdapter(this, selectedSalariesIds);
+        selectEmployeeAdapter = new SelectEmployeeInEditEventAdapter(this, selectedSalariesIds);
+
+        fillInformation();
         addEvents();
-
-        selectedEmployeesIds = new ArrayList<>();
-
-        deleteAdapter = new DeleteEmployeeAdapter(this, selectedEmployeesIds);
-        selectAdapder = new SelectEmployeeInAddEventAdapter(this, selectedEmployeesIds, EmployeeRepository
-                .getInstance(null).getAllEmployees());
-
-        deleteEmployeeListView.setAdapter(deleteAdapter);
     }
 
-//    public static void setSelectedEmployees(ArrayList<Employee> selectedEmployees) {
-//        AddEventActivity.selectedEmployees.clear();
-//        AddEventActivity.selectedEmployees.addAll(selectedEmployees);
-//    }
-
     private void connectViews() {
-        titleEditText = (EditText) findViewById(R.id.title_edit_text);
-        startDateEditText = (EditText) findViewById(R.id.start_date_edit_text);
-        startTimeEditText = (EditText) findViewById(R.id.start_time_edit_text);
-        endDateEditText = (EditText) findViewById(R.id.end_date_edit_text);
-        endTimeEditText = (EditText) findViewById(R.id.end_time_edit_text);
-        locationEditText = (EditText) findViewById(R.id.location_edit_text);
-        noteEditText = (EditText) findViewById(R.id.note_edit_text);
+        titleEditText = findViewById(R.id.event_edit_title_edit_text);
+        startDateEditText = findViewById(R.id.event_edit_start_date_edit_text);
+        startTimeEditText = findViewById(R.id.event_edit_start_time_edit_text);
+        endDateEditText = findViewById(R.id.event_edit_end_date_edit_text);
+        endTimeEditText = findViewById(R.id.event_edit_end_time_edit_text);
 
-        startDowTextView = (TextView) findViewById(R.id.start_dow_textview);
-        endDowTextView = (TextView) findViewById(R.id.end_dow_textview);
+        startDowTextView = findViewById(R.id.event_edit_start_dow_textview);
+        endDowTextView = findViewById(R.id.event_edit_end_dow_textview);
 
-        addEmployeeButton = (Button) findViewById(R.id.add_employee_button);
-        cancelButton = (Button) findViewById(R.id.cancel_button);
-        okButton = (Button) findViewById(R.id.ok_button);
+        locationEditText = findViewById(R.id.event_edit_location_edit_text);
+        noteEditText = findViewById(R.id.event_edit_note_edit_text);
 
-        deleteEmployeeListView = (CustomListView) findViewById(R.id.employees_listview);
+        addEmployeesButton = findViewById(R.id.event_edit_add_employee_button);
+        cancelButton = findViewById(R.id.event_edit_cancel_button);
+        okButton = findViewById(R.id.event_edit_ok_button);
+
+        salariesListView = findViewById(R.id.event_edit_salaries_list_view);
+    }
+
+    private void fillInformation() {
+        titleEditText.setText(event.getTen());
+        startDateEditText.setText(event.getNgayBatDau());
+        startTimeEditText.setText(event.getGioBatDau());
+        endDateEditText.setText(event.getNgayKetThuc());
+        endTimeEditText.setText(event.getGioKetThuc());
+
+        try {
+            startDowTextView.setText(CalendarUtil.getInstance().getSdfDayOfWeek()
+                    .format(CalendarUtil.getInstance().getSdfDayMonthYear().parse(startDateEditText.getText().toString())));
+            endDowTextView.setText(CalendarUtil.getInstance().getSdfDayOfWeek()
+                    .format(CalendarUtil.getInstance().getSdfDayMonthYear().parse(endDateEditText.getText().toString())));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        locationEditText.setText(event.getDiaDiem());
+        noteEditText.setText(event.getGhiChu());
+
+        salariesListView.setAdapter(deleteSalaryAdapter);
     }
 
     private void addEvents() {
-        //Cancel adding event
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((Activity) context).finish();
-            }
-        });
-
-        //Add event to database
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!titleEditText.getText().toString().isEmpty() &&
-                        !startDateEditText.getText().toString().isEmpty() &&
-                        !endDateEditText.getText().toString().isEmpty() &&
-                        !startTimeEditText.getText().toString().isEmpty() &&
-                        !endTimeEditText.getText().toString().isEmpty()) {
-
-                    Event event = new Event("",
-                            titleEditText.getText().toString(),
-                            startDateEditText.getText().toString(),
-                            endDateEditText.getText().toString(),
-                            startTimeEditText.getText().toString(),
-                            endTimeEditText.getText().toString(),
-                            locationEditText.getText().toString(),
-                            noteEditText.getText().toString());
-
-                    //Add salaries
-                    final ArrayList<Salary> salaries = new ArrayList<>();
-                    Log.d("debug", "AddEventActivity: deleteEmployeeListView.getChildCount() = " + deleteEmployeeListView.getChildCount());
-                    for (int i = 0; i < deleteEmployeeListView.getChildCount(); i++) {
-                        Salary tempSalary = new Salary("", "",
-                                selectedEmployeesIds.get(i),
-                                0,
-                                false);
-                        salaries.add(tempSalary);
-                    }
-                    Log.d("debug", "AddEventActivity: salaries.size() = " + salaries.size());
-                    //Add event to sukien collection & salaries to luong collection
-                    EventRepository.getInstance(null).addEventToDatabase(event, salaries, new EventRepository.MyAddEventCallback() {
-                        @Override
-                        public void onCallback(String eventId) {
-                            Log.d("debug", "add event salaries size = " + salaries.size());
-                            Intent intent = new Intent();
-                            intent.putExtra("added?", true);
-                            setResult(RESULT_OK, intent);
-                            ((Activity) context).finish();
-                        }
-                    });
-                } else {
-                    if (titleEditText.getText().toString().isEmpty()) {
-                        titleEditText.setError("Xin mời nhập");
-                    } else {
-                        titleEditText.setError(null);
-                    }
-                    if (startDateEditText.getText().toString().isEmpty()) {
-                        startDateEditText.setError("Xin mời nhập");
-                    } else {
-                        startDateEditText.setError(null);
-                    }
-                    if (endDateEditText.getText().toString().isEmpty()) {
-                        endDateEditText.setError("Xin mời nhập");
-                    } else {
-                        endDateEditText.setError(null);
-                    }
-                    if (startTimeEditText.getText().toString().isEmpty()) {
-                        startTimeEditText.setError("Xin mời nhập");
-                    } else {
-                        startTimeEditText.setError(null);
-                    }
-                    if (endTimeEditText.getText().toString().isEmpty()) {
-                        endTimeEditText.setError("Xin mời nhập");
-                    } else {
-                        endTimeEditText.setError(null);
-                    }
-                }
-            }
-        });
-
-        //Add employees to event
-        addEmployeeButton.setOnClickListener(new View.OnClickListener() {
+        addEmployeesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openAddEmployeeDialog();
             }
         });
 
-        //Date set and Time set Listeners
         dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -243,8 +183,6 @@ public class AddEventActivity extends AppCompatActivity {
                 }
             }
         };
-
-        //set start Date, start Time, end Date, end Time
         startDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -261,7 +199,7 @@ public class AddEventActivity extends AppCompatActivity {
                 int d = calendar.get(Calendar.DAY_OF_MONTH);
                 int m = calendar.get(Calendar.MONTH);
                 int y = calendar.get(Calendar.YEAR);
-                DatePickerDialog datePickerDialog = new DatePickerDialog(AddEventActivity.this, dateSetListener, y,
+                DatePickerDialog datePickerDialog = new DatePickerDialog(EditEventActivity.this, dateSetListener, y,
                         m, d);
                 if (!endDateEditText.getText().toString().isEmpty()) {
                     try {
@@ -291,7 +229,7 @@ public class AddEventActivity extends AppCompatActivity {
                 int d = calendar.get(Calendar.DAY_OF_MONTH);
                 int m = calendar.get(Calendar.MONTH);
                 int y = calendar.get(Calendar.YEAR);
-                DatePickerDialog datePickerDialog = new DatePickerDialog(AddEventActivity.this, dateSetListener, y,
+                DatePickerDialog datePickerDialog = new DatePickerDialog(EditEventActivity.this, dateSetListener, y,
                         m, d);
                 if (!startDateEditText.getText().toString().isEmpty()) {
                     try {
@@ -319,7 +257,7 @@ public class AddEventActivity extends AppCompatActivity {
                 currentView = startTimeEditText;
                 int HH = calendar.get(Calendar.HOUR_OF_DAY);
                 int mm = calendar.get(Calendar.MINUTE);
-                new TimePickerDialog(AddEventActivity.this, timeSetListener, HH,
+                new TimePickerDialog(EditEventActivity.this, timeSetListener, HH,
                         mm, false).show();
             }
         });
@@ -338,8 +276,93 @@ public class AddEventActivity extends AppCompatActivity {
                 currentView = endTimeEditText;
                 int HH = calendar.get(Calendar.HOUR_OF_DAY);
                 int mm = calendar.get(Calendar.MINUTE);
-                new TimePickerDialog(AddEventActivity.this, timeSetListener, HH,
+                new TimePickerDialog(EditEventActivity.this, timeSetListener, HH,
                         mm, false).show();
+            }
+        });
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!titleEditText.getText().toString().isEmpty() &&
+                        !startDateEditText.getText().toString().isEmpty() &&
+                        !endDateEditText.getText().toString().isEmpty() &&
+                        !startTimeEditText.getText().toString().isEmpty() &&
+                        !endTimeEditText.getText().toString().isEmpty()) {
+                    Event event = new Event(eventId,
+                            titleEditText.getText().toString(),
+                            startDateEditText.getText().toString(),
+                            endDateEditText.getText().toString(),
+                            startTimeEditText.getText().toString(),
+                            endTimeEditText.getText().toString(),
+                            locationEditText.getText().toString(),
+                            noteEditText.getText().toString());
+
+                    ArrayList<Salary> salaries = new ArrayList<>();
+                    for (int i = 0; i < salariesListView.getChildCount(); i++) {
+                        EditText salaryEditText = salariesListView.getChildAt(i)
+                                .findViewById(R.id.delete_salary_salary_edit_text);
+                        int salaryAmount;
+                        if(salaryEditText.getText().toString().isEmpty()) {
+                            salaryAmount = 0;
+                        } else {
+                            salaryAmount = Integer.parseInt(salaryEditText.getText().toString());
+                        }
+                        Salary tempSalary = new Salary("", eventId,
+                                SalaryRepository.getInstance(null).getAllSalaries()
+                                        .get(deleteSalaryAdapter.getSalariesIds().get(i)).getEmployeeId(),
+                                salaryAmount,
+                                false);
+                        salaries.add(tempSalary);
+                    }
+
+                    //Save edited event to sukien collection
+                    EventRepository.getInstance(null).updateEventToDatabase(event, salaries, new EventRepository.MyUpdateEventCallback() {
+                        @Override
+                        public void onCallback(boolean updateSucceed) {
+                            Intent intent = new Intent();
+                            intent.putExtra("edited?", true);
+                            intent.putExtra("editSucceed", updateSucceed);
+                            setResult(RESULT_OK, intent);
+                            Log.d("debug", "EditEventActivity: update event complete");
+                            ((Activity) context).finish();
+                        }
+                    });
+                } else {
+                    if (titleEditText.getText().toString().isEmpty()) {
+                        titleEditText.setError("Xin mời nhập");
+                    } else {
+                        titleEditText.setError(null);
+                    }
+                    if (startDateEditText.getText().toString().isEmpty()) {
+                        startDateEditText.setError("Xin mời nhập");
+                    } else {
+                        startDateEditText.setError(null);
+                    }
+                    if (endDateEditText.getText().toString().isEmpty()) {
+                        endDateEditText.setError("Xin mời nhập");
+                    } else {
+                        endDateEditText.setError(null);
+                    }
+                    if (startTimeEditText.getText().toString().isEmpty()) {
+                        startTimeEditText.setError("Xin mời nhập");
+                    } else {
+                        startTimeEditText.setError(null);
+                    }
+                    if (endTimeEditText.getText().toString().isEmpty()) {
+                        endTimeEditText.setError("Xin mời nhập");
+                    } else {
+                        endTimeEditText.setError(null);
+                    }
+                }
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.putExtra("edited?", false);
+                setResult(RESULT_OK, intent);
+                finish();
             }
         });
     }
@@ -348,31 +371,30 @@ public class AddEventActivity extends AppCompatActivity {
         final Dialog addEmployeeDialog = new Dialog(this);
         addEmployeeDialog.setContentView(R.layout.dialog_select_employee);
 
-        //Connect views
         final ListView selectEmployeeListView = (ListView) addEmployeeDialog.findViewById(R.id.select_employee_listview);
         Button cancelButton = (Button) addEmployeeDialog.findViewById(R.id.cancel_button);
         Button okButton = (Button) addEmployeeDialog.findViewById(R.id.ok_button);
 
-        selectEmployeeListView.setAdapter(selectAdapder);
+        selectEmployeeListView.setAdapter(selectEmployeeAdapter);
 
-        //Add events
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 CheckBox tempCheckbox;
+                ArrayList<String> selectedEmployessIds = EmployeeRepository.getInstance(null).getEmployeesIdsFromSalariesIds(selectedSalariesIds);
                 for (int i = 0; i < selectEmployeeListView.getChildCount(); i++) {
                     tempCheckbox = selectEmployeeListView.getChildAt(i).findViewById(R.id.add_employee_checkbox);
                     if (tempCheckbox.isChecked() &&
-                            !selectedEmployeesIds.contains(selectAdapder.getAllEmployeesIds()[i])) {
-                        selectedEmployeesIds.add(selectAdapder.getAllEmployeesIds()[i]);
+                            !selectedEmployessIds.contains(selectEmployeeAdapter.getAllEmployeesIds()[i])) {
+                        selectedSalariesIds.add(selectEmployeeAdapter.getAllEmployeesIds()[i]);
                     }
                     if (!tempCheckbox.isChecked() &&
-                            selectedEmployeesIds.contains(selectAdapder.getAllEmployeesIds()[i])) {
-                        selectedEmployeesIds.remove(selectAdapder.getAllEmployeesIds()[i]);
+                            selectedEmployessIds.contains(selectEmployeeAdapter.getAllEmployeesIds()[i])) {
+                        selectedSalariesIds.remove(selectEmployeeAdapter.getAllEmployeesIds()[i]);
                     }
                 }
-                Log.d("debug", "selected " + selectedEmployeesIds.size() + " employees");
-                deleteAdapter.notifyDataSetChanged();
+                Log.d("debug", "selected " + selectedSalariesIds.size() + " employees");
+                deleteSalaryAdapter.notifyDataSetChanged();
                 addEmployeeDialog.dismiss();
             }
         });

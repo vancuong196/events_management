@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="60dp"
-    android:weightSum="5"
+    android:weightSum="8"
     android:orientation="horizontal"
     android:paddingLeft="15dp"
     android:paddingRight="15dp">
@@ -11,11 +11,12 @@
         android:id="@+id/event_time_text_view"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="2"
+        android:layout_weight="3"
         android:gravity="center_vertical"
         android:text="07:00 AM - 09:00 AM">
     </TextView>
     <LinearLayout
+        android:layout_marginLeft="15dp"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="5"
@@ -24,7 +25,6 @@
             android:id="@+id/event_title_text_view"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:layout_weight="5"
             android:gravity="center_vertical"
             android:textStyle="bold"
             android:text="Name">
@@ -33,7 +33,6 @@
             android:id="@+id/event_location_text_view"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:layout_weight="5"
             android:gravity="center_vertical"
             android:text="Location">
         </TextView>

@@ -60,7 +60,7 @@ public class EventRepository{
         return instance;
     }
 
-    public static void addEventToDatabase(Event event, final MyAddEventCallback callback) {
+    public void addEventToDatabase(Event event, final ArrayList<Salary> salaries, final MyAddEventCallback callback) {
         HashMap<String, String> data = new HashMap<>();
         data.put(Constants.EVENT_NAME, event.getTen());
         data.put(Constants.EVENT_START_DATE, event.getNgayBatDau());
@@ -73,10 +73,30 @@ public class EventRepository{
                 .collection(Constants.EVENT_COLLECTION)
                 .add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    ArrayList<Salary> tempSalaries = new ArrayList<>();
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        callback.onCallback(documentReference.getId());
-                        Log.d("debug","Thêm sự kiện thành công");
+                    public void onSuccess(final DocumentReference documentReference) {
+                        tempSalaries.addAll(salaries);
+                        Log.d("debug", "EventRepository: salaries.sizs() = " + tempSalaries.size());
+                        for(int i = 0; i < tempSalaries.size(); i++) {
+                            tempSalaries.get(i).setEventId(documentReference.getId());
+                            final int tempI = i;
+                            SalaryRepository.getInstance(null).addSalaryToDatabase(tempSalaries.get(i), new SalaryRepository.MyAddSalaryCallback() {
+                                @Override
+                                public void onCallback(String salaryId) {
+                                    if(tempI == tempSalaries.size() - 1) {
+                                        callback.onCallback(documentReference.getId());
+                                    }
+                                }
+                            });
+                        }
+//                        SalaryRepository.getInstance(null).addSalariesToDatabase(tempSalaries, new SalaryRepository.MyAddSalaryCallback() {
+//                            @Override
+//                            public void onCallback(String lastSalaryId) {
+//                                callback.onCallback(documentReference.getId());
+//                                Log.d("debug","Thêm sự kiện thành công");
+//                            }
+//                        });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -119,24 +139,74 @@ public class EventRepository{
         return allEvents;
     }
 
-    public boolean deleteEvent(int position, final Context context) {
+    public void deleteEvent(final String eventId, final MyDeleteEventCallback callback) {
         DatabaseAccess.getInstance().getDatabase()
                 .collection(Constants.EVENT_COLLECTION)
-                .document(allEvents.get(position).getId())
+                .document(eventId)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(context, "Xóa sự kiện thành công", Toast.LENGTH_SHORT).show();
+                        Log.d("debug", "Xóa sự kiện " + eventId + " thành công");
+                        SalaryRepository.getInstance(null).deleteSalaryByEventId(eventId, new SalaryRepository.MyDeleteSalaryByEventIdCallback() {
+                            @Override
+                            public void onCallback(boolean deleteSucceed) {
+                                callback.onCallback(true, deleteSucceed);
+                            }
+                        });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context, "Xóa sự kiện thất bại", Toast.LENGTH_SHORT).show();
+                        Log.d("debug", "Xóa sự kiện " + eventId + " thất bại");
+                        callback.onCallback(false, false);
                     }
                 });
-        return true;
+    }
+
+    public void updateEventToDatabase(final Event event, final ArrayList<Salary> salaries, final MyUpdateEventCallback callback) {
+        Map<String, Object> data = new HashMap<>();
+        data.put(Constants.EVENT_NAME, event.getTen());
+        data.put(Constants.EVENT_START_DATE, event.getNgayBatDau());
+        data.put(Constants.EVENT_END_DATE, event.getNgayKetThuc());
+        data.put(Constants.EVENT_START_TIME, event.getGioBatDau());
+        data.put(Constants.EVENT_END_TIME, event.getGioKetThuc());
+        data.put(Constants.EVENT_LOCATION, event.getDiaDiem());
+        data.put(Constants.EVENT_NOTE, event.getGhiChu());
+        DatabaseAccess.getInstance().getDatabase()
+                .collection(Constants.EVENT_COLLECTION)
+                .document(event.getId())
+                .update(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        SalaryRepository.getInstance(null).deleteSalaryByEventId(event.getId(), new SalaryRepository.MyDeleteSalaryByEventIdCallback() {
+                            @Override
+                            public void onCallback(boolean deleteSucceed) {
+                                if(salaries.size() > 0) {
+                                    SalaryRepository.getInstance(null).addSalariesToDatabase(salaries, new SalaryRepository.MyAddSalaryCallback() {
+                                        @Override
+                                        public void onCallback(String lastSalaryId) {
+                                            callback.onCallback(true);
+                                            Log.d("debug", "EventRepository: edit event succeed");
+                                        }
+                                    });
+                                } else {
+                                    callback.onCallback(true);
+                                    Log.d("debug", "EventRepository: edit event succeed");
+                                }
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        callback.onCallback(false);
+                        Log.d("debug", "EventRepository: edit event failed");
+                    }
+                });
     }
 
     public HashMap<String, Event> getEventsOnDate(String date) {
@@ -157,5 +227,12 @@ public class EventRepository{
     }
     public interface MyAddEventCallback {
         void onCallback(String eventId);
+    }
+
+    public interface MyDeleteEventCallback {
+        void onCallback(boolean deleteEventSucceed, boolean deleteSalariesSucceed);
+    }
+    public interface MyUpdateEventCallback {
+        void onCallback(boolean updateEventSucceed);
     }
 }

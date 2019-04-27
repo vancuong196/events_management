@@ -10,21 +10,29 @@ import android.widget.TextView;
 
 import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.repositories.EventRepository;
-import com.example.clay.left.R;
+import com.example.clay.event_manager.R;
 
 import java.util.HashMap;
 
-public class EventAdapter extends BaseAdapter {
+public class MainViewEventAdapter extends BaseAdapter {
 
     private final Activity context;
     private HashMap<String, Event> events;
     private String[] eventIds;
 
-    public EventAdapter(Activity context, HashMap<String, Event> events) {
+    public MainViewEventAdapter(Activity context, HashMap<String, Event> events) {
         this.context = context;
         this.events = events;
         eventIds = events.keySet().toArray(new String[events.size()]);
         Log.d("debug", "EventAdapter: events size on create adapter= "+events.size());
+    }
+
+    public String[] getEventIds() {
+        return eventIds;
+    }
+
+    public void setEventIds(String[] eventIds) {
+        this.eventIds = eventIds;
     }
 
     @Override

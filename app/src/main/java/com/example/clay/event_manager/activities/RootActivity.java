@@ -13,7 +13,7 @@ import android.view.MenuItem;
 
 import com.example.clay.event_manager.fragments.EventManagementFragment;
 import com.example.clay.event_manager.fragments.UserManagementFragment;
-import com.example.clay.left.R;
+import com.example.clay.event_manager.R;
 import com.google.firebase.FirebaseApp;
 
 public class RootActivity extends AppCompatActivity

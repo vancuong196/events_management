@@ -6,7 +6,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="25dp">
+        android:layout_marginBottom="30dp">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
@@ -19,20 +19,25 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tên sự kiện" />
+                android:text="Tên sự kiện"
+                android:textSize="@dimen/title"
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/title_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nextFocusLeft="@id/title_edit_text"
-                android:nextFocusUp="@id/title_edit_text" />
+                android:nextFocusUp="@id/title_edit_text"
+                android:textSize="@dimen/content" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Bắt đầu" />
+                android:text="Bắt đầu"
+                android:textSize="@dimen/title"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -55,7 +60,8 @@
                     android:layout_weight="3"
                     android:clickable="true"
                     android:focusable="false"
-                    android:hint="Ngày bắt đầu" />
+                    android:hint="Ngày bắt đầu"
+                    android:textSize="@dimen/content" />
 
                 <EditText
                     android:id="@+id/start_time_edit_text"
@@ -64,13 +70,16 @@
                     android:layout_weight="2"
                     android:clickable="true"
                     android:focusable="false"
-                    android:hint="Giờ bắt đầu" />
+                    android:hint="Giờ bắt đầu"
+                    android:textSize="@dimen/content" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Kết thúc" />
+                android:text="Kết thúc"
+                android:textSize="@dimen/title"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -93,7 +102,8 @@
                     android:layout_weight="3"
                     android:clickable="true"
                     android:focusable="false"
-                    android:hint="Ngày kết thúc" />
+                    android:hint="Ngày kết thúc"
+                    android:textSize="@dimen/content" />
 
                 <EditText
                     android:id="@+id/end_time_edit_text"
@@ -103,38 +113,36 @@
 
                     android:clickable="true"
                     android:focusable="false"
-                    android:hint="Giờ kết thúc" />
+                    android:hint="Giờ kết thúc"
+                    android:textSize="@dimen/content" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Địa điểm" />
+                android:text="Địa điểm"
+                android:textSize="@dimen/title"
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/location_edit_text"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/content" />
 
             <TextView
-                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nhân sự" />
+                android:layout_marginTop="10dp"
+                android:text="Nhân sự"
+                android:textSize="@dimen/title"
+                android:textStyle="bold" />
 
-            <RelativeLayout
+            <com.example.clay.event_manager.customlistviews.CustomListView
+                android:id="@+id/employees_listview"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <!--<ScrollView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content">-->
-                <ListView
-                    android:id="@+id/employees_listview"
-                    android:layout_width="match_parent"
-                    android:layout_height="180dp"></ListView>
-                <!--</ScrollView>-->
-            </RelativeLayout>
+                android:layout_height="wrap_content"></com.example.clay.event_manager.customlistviews.CustomListView>
 
             <Button
                 android:id="@+id/add_employee_button"
@@ -143,19 +151,22 @@
                 android:text="Thêm nhân sự" />
 
             <TextView
-                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ghi chú" />
+                android:layout_marginTop="10dp"
+                android:text="Ghi chú"
+                android:textSize="@dimen/title"
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/note_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="50dp"
                 android:gravity="top"
                 android:inputType="textMultiLine"
                 android:minLines="3"
-                android:layout_marginBottom="50dp"/>
+                android:textSize="@dimen/note" />
         </LinearLayout>
     </ScrollView>
 
