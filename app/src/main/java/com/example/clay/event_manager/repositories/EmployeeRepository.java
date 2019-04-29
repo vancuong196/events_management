@@ -1,16 +1,12 @@
 package com.example.clay.event_manager.repositories;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
 import com.example.clay.event_manager.models.Employee;
-import com.example.clay.event_manager.models.Event;
+import com.example.clay.event_manager.models.Salary;
 import com.example.clay.event_manager.utils.Constants;
 import com.example.clay.event_manager.utils.DatabaseAccess;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -34,16 +30,16 @@ public class EmployeeRepository {
         addListener(new MyEmployeeCallback() {
             @Override
             public void onCallback(HashMap<String, Employee> employeeList) {
-                if(employeeList != null) {
+                if (employeeList != null) {
                     allEmployees = employeeList;
-                    if(EmployeeRepository.this.listener != null) {
+                    if (EmployeeRepository.this.listener != null) {
                         EmployeeRepository.this.listener.notifyOnLoadComplete();
                     }
-                    Log.d("debug", "set allEmployees.size() = "+allEmployees.size());
+                    Log.d("debug", "set allEmployees.size() = " + allEmployees.size());
                 }
             }
         });
-        if(allEmployees == null) {
+        if (allEmployees == null) {
             allEmployees = new HashMap<>();
             Log.d("debug", "set allEmployees = new....");
         }
@@ -71,7 +67,7 @@ public class EmployeeRepository {
                             return;
                         }
                         HashMap<String, Employee> employees = new HashMap<>();
-                        for(QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             Map<String, Object> tempHashMap = doc.getData();
                             Employee tempEmployee = new Employee(doc.getId(),
                                     (String) tempHashMap.get(Constants.EMPLOYEE_NAME),
@@ -90,8 +86,16 @@ public class EmployeeRepository {
 
     public ArrayList<String> getEmployeesIdsFromSalariesIds(ArrayList<String> salariesIds) {
         ArrayList<String> employeesIds = new ArrayList<>();
-        for(String salaryId : salariesIds) {
+        for (String salaryId : salariesIds) {
             employeesIds.add(SalaryRepository.getInstance(null).getAllSalaries().get(salaryId).getEmployeeId());
+        }
+        return employeesIds;
+    }
+
+    public ArrayList<String> getEmployeesIdsByEventId(String eventId) {
+        ArrayList<String> employeesIds = new ArrayList<>();
+        for (Salary s : SalaryRepository.getInstance(null).getSalariesByEventId(eventId).values()) {
+            employeesIds.add(s.getEmployeeId());
         }
         return employeesIds;
     }

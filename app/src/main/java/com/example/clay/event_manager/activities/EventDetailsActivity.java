@@ -36,6 +36,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     String eventId;
 
     int RESULT_FROM_EDIT_EVENT_INTENT = 3;
+    int RESULT_FROM_EDIT_SALARY_INTENT = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +97,15 @@ public class EventDetailsActivity extends AppCompatActivity {
                     .show();
             return true;
         }
+
+        //Chỉnh sửa lương
+        if(id==R.id.event_details_action_edit_salaries) {
+            Intent intent = new Intent(this, EditSalaryFromEventDetailsActivity.class);
+            intent.putExtra("eventId", eventId);
+            startActivityForResult(intent, RESULT_FROM_EDIT_SALARY_INTENT);
+            return true;
+        }
+
         //Chỉnh sửa sự kiện
         if (id == R.id.event_details_action_edit_event) {
             Intent intent = new Intent(this, EditEventActivity.class);
@@ -146,9 +156,8 @@ public class EventDetailsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RESULT_FROM_EDIT_EVENT_INTENT && resultCode == RESULT_OK) {
-            Log.d("debug", "edited? from EventDetails to EventManagement: " + data.getBooleanExtra("edited?", false));
-            if(data.getBooleanExtra("edited?", false)) {
-                if(data.getBooleanExtra("editSucceed", false)) {
+            if(data.getBooleanExtra("edit event", false)) {
+                if(data.getBooleanExtra("edit event succeed", false)) {
                     selectedEvent = EventRepository.getInstance(null).getAllEvents().get(eventId);
                     fillInformation();
                     salaries = SalaryRepository.getInstance(null).getSalariesByEventId(eventId);
@@ -156,6 +165,17 @@ public class EventDetailsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Cập nhật sự kiện thành công", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Cập nhật sự kiện thất bại", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else if (requestCode == RESULT_FROM_EDIT_SALARY_INTENT && resultCode == RESULT_OK) {
+            if(data.getBooleanExtra("edit salaries", false)) {
+                if(data.getBooleanExtra("edit salaries succeed", false)) {
+                    fillInformation();
+                    salaries = SalaryRepository.getInstance(null).getSalariesByEventId(eventId);
+                    viewSalaryAdapter.notifyDataSetChanged(salaries);
+                    Toast.makeText(this, "Cập nhật lương thành công", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Cập nhật lương thất bại", Toast.LENGTH_SHORT).show();
                 }
             }
         }

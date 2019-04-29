@@ -8,7 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -20,9 +23,8 @@ import android.widget.TimePicker;
 
 import com.example.clay.event_manager.R;
 import com.example.clay.event_manager.adapters.DeleteEmployeeAdapter;
-import com.example.clay.event_manager.adapters.SelectEmployeeInAddEventAdapter;
+import com.example.clay.event_manager.adapters.SelectEmployeeAdapter;
 import com.example.clay.event_manager.customlistviews.CustomListView;
-import com.example.clay.event_manager.models.Employee;
 import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.models.Salary;
 import com.example.clay.event_manager.repositories.EmployeeRepository;
@@ -31,13 +33,14 @@ import com.example.clay.event_manager.utils.CalendarUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 
 public class AddEventActivity extends AppCompatActivity {
+    Toolbar toolbar;
+
     EditText titleEditText, startDateEditText, startTimeEditText, endDateEditText, endTimeEditText,
             locationEditText, noteEditText;
     TextView startDowTextView, endDowTextView;
-    Button addEmployeeButton, cancelButton, okButton;
+    Button addEmployeeButton;
     CustomListView deleteEmployeeListView;
 
     DatePickerDialog.OnDateSetListener dateSetListener;
@@ -46,7 +49,7 @@ public class AddEventActivity extends AppCompatActivity {
 
     ArrayList<String> selectedEmployeesIds;
     DeleteEmployeeAdapter deleteAdapter;
-    SelectEmployeeInAddEventAdapter selectAdapder;
+    SelectEmployeeAdapter selectAdapder;
 
     Calendar calendar = Calendar.getInstance();
 
@@ -64,18 +67,38 @@ public class AddEventActivity extends AppCompatActivity {
         selectedEmployeesIds = new ArrayList<>();
 
         deleteAdapter = new DeleteEmployeeAdapter(this, selectedEmployeesIds);
-        selectAdapder = new SelectEmployeeInAddEventAdapter(this, selectedEmployeesIds, EmployeeRepository
-                .getInstance(null).getAllEmployees());
+        selectAdapder = new SelectEmployeeAdapter(this, selectedEmployeesIds);
 
         deleteEmployeeListView.setAdapter(deleteAdapter);
     }
 
-//    public static void setSelectedEmployees(ArrayList<Employee> selectedEmployees) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.add_event_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.add_event_action_add_event) {
+            addEvent();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    //    public static void setSelectedEmployees(ArrayList<Employee> selectedEmployees) {
 //        AddEventActivity.selectedEmployees.clear();
 //        AddEventActivity.selectedEmployees.addAll(selectedEmployees);
 //    }
 
     private void connectViews() {
+        toolbar = findViewById(R.id.add_event_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Thêm sự kiện");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         titleEditText = (EditText) findViewById(R.id.title_edit_text);
         startDateEditText = (EditText) findViewById(R.id.start_date_edit_text);
         startTimeEditText = (EditText) findViewById(R.id.start_time_edit_text);
@@ -88,93 +111,77 @@ public class AddEventActivity extends AppCompatActivity {
         endDowTextView = (TextView) findViewById(R.id.end_dow_textview);
 
         addEmployeeButton = (Button) findViewById(R.id.add_employee_button);
-        cancelButton = (Button) findViewById(R.id.cancel_button);
-        okButton = (Button) findViewById(R.id.ok_button);
 
         deleteEmployeeListView = (CustomListView) findViewById(R.id.employees_listview);
     }
 
-    private void addEvents() {
-        //Cancel adding event
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((Activity) context).finish();
+    private void addEvent() {
+        if (!titleEditText.getText().toString().isEmpty() &&
+                !startDateEditText.getText().toString().isEmpty() &&
+                !endDateEditText.getText().toString().isEmpty() &&
+                !startTimeEditText.getText().toString().isEmpty() &&
+                !endTimeEditText.getText().toString().isEmpty()) {
+
+            Event event = new Event("",
+                    titleEditText.getText().toString(),
+                    startDateEditText.getText().toString(),
+                    endDateEditText.getText().toString(),
+                    startTimeEditText.getText().toString(),
+                    endTimeEditText.getText().toString(),
+                    locationEditText.getText().toString(),
+                    noteEditText.getText().toString());
+
+            final ArrayList<Salary> salaries = new ArrayList<>();
+            Log.d("debug", "AddEventActivity: deleteEmployeeListView.getChildCount() = " + deleteEmployeeListView.getChildCount());
+            for (int i = 0; i < deleteEmployeeListView.getChildCount(); i++) {
+                Salary tempSalary = new Salary("", "",
+                        selectedEmployeesIds.get(i),
+                        0,
+                        false);
+                salaries.add(tempSalary);
             }
-        });
-
-        //Add event to database
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!titleEditText.getText().toString().isEmpty() &&
-                        !startDateEditText.getText().toString().isEmpty() &&
-                        !endDateEditText.getText().toString().isEmpty() &&
-                        !startTimeEditText.getText().toString().isEmpty() &&
-                        !endTimeEditText.getText().toString().isEmpty()) {
-
-                    Event event = new Event("",
-                            titleEditText.getText().toString(),
-                            startDateEditText.getText().toString(),
-                            endDateEditText.getText().toString(),
-                            startTimeEditText.getText().toString(),
-                            endTimeEditText.getText().toString(),
-                            locationEditText.getText().toString(),
-                            noteEditText.getText().toString());
-
-                    //Add salaries
-                    final ArrayList<Salary> salaries = new ArrayList<>();
-                    Log.d("debug", "AddEventActivity: deleteEmployeeListView.getChildCount() = " + deleteEmployeeListView.getChildCount());
-                    for (int i = 0; i < deleteEmployeeListView.getChildCount(); i++) {
-                        Salary tempSalary = new Salary("", "",
-                                selectedEmployeesIds.get(i),
-                                0,
-                                false);
-                        salaries.add(tempSalary);
-                    }
-                    Log.d("debug", "AddEventActivity: salaries.size() = " + salaries.size());
-                    //Add event to sukien collection & salaries to luong collection
-                    EventRepository.getInstance(null).addEventToDatabase(event, salaries, new EventRepository.MyAddEventCallback() {
-                        @Override
-                        public void onCallback(String eventId) {
-                            Log.d("debug", "add event salaries size = " + salaries.size());
-                            Intent intent = new Intent();
-                            intent.putExtra("added?", true);
-                            setResult(RESULT_OK, intent);
-                            ((Activity) context).finish();
-                        }
-                    });
-                } else {
-                    if (titleEditText.getText().toString().isEmpty()) {
-                        titleEditText.setError("Xin mời nhập");
-                    } else {
-                        titleEditText.setError(null);
-                    }
-                    if (startDateEditText.getText().toString().isEmpty()) {
-                        startDateEditText.setError("Xin mời nhập");
-                    } else {
-                        startDateEditText.setError(null);
-                    }
-                    if (endDateEditText.getText().toString().isEmpty()) {
-                        endDateEditText.setError("Xin mời nhập");
-                    } else {
-                        endDateEditText.setError(null);
-                    }
-                    if (startTimeEditText.getText().toString().isEmpty()) {
-                        startTimeEditText.setError("Xin mời nhập");
-                    } else {
-                        startTimeEditText.setError(null);
-                    }
-                    if (endTimeEditText.getText().toString().isEmpty()) {
-                        endTimeEditText.setError("Xin mời nhập");
-                    } else {
-                        endTimeEditText.setError(null);
-                    }
+            Log.d("debug", "AddEventActivity: salaries.size() = " + salaries.size());
+            //Add event to sukien collection & salaries to luong collection
+            EventRepository.getInstance(null).addEventToDatabase(event, salaries, new EventRepository.MyAddEventCallback() {
+                @Override
+                public void onCallback(String eventId) {
+                    Log.d("debug", "add event salaries size = " + salaries.size());
+                    Intent intent = new Intent();
+                    intent.putExtra("added?", true);
+                    setResult(RESULT_OK, intent);
+                    ((Activity) context).finish();
                 }
+            });
+        } else {
+            if (titleEditText.getText().toString().isEmpty()) {
+                titleEditText.setError("Xin mời nhập");
+            } else {
+                titleEditText.setError(null);
             }
-        });
+            if (startDateEditText.getText().toString().isEmpty()) {
+                startDateEditText.setError("Xin mời nhập");
+            } else {
+                startDateEditText.setError(null);
+            }
+            if (endDateEditText.getText().toString().isEmpty()) {
+                endDateEditText.setError("Xin mời nhập");
+            } else {
+                endDateEditText.setError(null);
+            }
+            if (startTimeEditText.getText().toString().isEmpty()) {
+                startTimeEditText.setError("Xin mời nhập");
+            } else {
+                startTimeEditText.setError(null);
+            }
+            if (endTimeEditText.getText().toString().isEmpty()) {
+                endTimeEditText.setError("Xin mời nhập");
+            } else {
+                endTimeEditText.setError(null);
+            }
+        }
+    }
 
-        //Add employees to event
+    private void addEvents() {
         addEmployeeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -385,5 +392,11 @@ public class AddEventActivity extends AppCompatActivity {
         if (!isFinishing()) {
             addEmployeeDialog.show();
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
     }
 }

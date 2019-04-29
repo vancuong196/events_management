@@ -1,21 +1,15 @@
 package com.example.clay.event_manager.repositories;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.example.clay.event_manager.activities.AddEventActivity;
-import com.example.clay.event_manager.fragments.EventManagementFragment;
 import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
 import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.models.Salary;
 import com.example.clay.event_manager.utils.Constants;
 import com.example.clay.event_manager.utils.DatabaseAccess;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -148,7 +142,7 @@ public class EventRepository{
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("debug", "Xóa sự kiện " + eventId + " thành công");
-                        SalaryRepository.getInstance(null).deleteSalaryByEventId(eventId, new SalaryRepository.MyDeleteSalaryByEventIdCallback() {
+                        SalaryRepository.getInstance(null).deleteSalariesByEventId(eventId, new SalaryRepository.MyDeleteSalariesByEventIdCallback() {
                             @Override
                             public void onCallback(boolean deleteSucceed) {
                                 callback.onCallback(true, deleteSucceed);
@@ -165,7 +159,7 @@ public class EventRepository{
                 });
     }
 
-    public void updateEventToDatabase(final Event event, final ArrayList<Salary> salaries, final MyUpdateEventCallback callback) {
+    public void updateEventToDatabase(final Event event, final MyUpdateEventCallback callback) {
         Map<String, Object> data = new HashMap<>();
         data.put(Constants.EVENT_NAME, event.getTen());
         data.put(Constants.EVENT_START_DATE, event.getNgayBatDau());
@@ -181,23 +175,7 @@ public class EventRepository{
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        SalaryRepository.getInstance(null).deleteSalaryByEventId(event.getId(), new SalaryRepository.MyDeleteSalaryByEventIdCallback() {
-                            @Override
-                            public void onCallback(boolean deleteSucceed) {
-                                if(salaries.size() > 0) {
-                                    SalaryRepository.getInstance(null).addSalariesToDatabase(salaries, new SalaryRepository.MyAddSalaryCallback() {
-                                        @Override
-                                        public void onCallback(String lastSalaryId) {
-                                            callback.onCallback(true);
-                                            Log.d("debug", "EventRepository: edit event succeed");
-                                        }
-                                    });
-                                } else {
-                                    callback.onCallback(true);
-                                    Log.d("debug", "EventRepository: edit event succeed");
-                                }
-                            }
-                        });
+                        callback.onCallback(true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

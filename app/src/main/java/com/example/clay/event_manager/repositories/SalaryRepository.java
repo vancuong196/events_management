@@ -22,7 +22,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -58,6 +57,33 @@ public class SalaryRepository {
         return instance;
     }
 
+    public void updateSalaries(final ArrayList<Salary> salaries, final MyUpdateSalariesCallback callback) {
+        for (int i = 0; i < salaries.size(); i++) {
+            Map<String, Object> data = new HashMap<>();
+            data.put(Constants.SALARY_SALARY, "" + salaries.get(i).getSalary());
+            data.put(Constants.SALARY_PAID, Boolean.toString(salaries.get(i).isPaid()));
+            final int tempI = i;
+            DatabaseAccess.getInstance().getDatabase()
+                    .collection(Constants.SALARY_COLLECTION)
+                    .document(salaries.get(i).getSalaryId())
+                    .update(data)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            if (tempI == salaries.size() - 1) {
+                                callback.onCallback(true);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            callback.onCallback(false);
+                        }
+                    });
+        }
+    }
+
     private void addListener(final SalaryRepository.MySalaryCallback callback) {
         DatabaseAccess.getInstance().getDatabase()
                 .collection(Constants.SALARY_COLLECTION)
@@ -70,7 +96,7 @@ public class SalaryRepository {
                         }
                         HashMap<String, Salary> salaryList = new HashMap<>();
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            if(queryDocumentSnapshots.size() > 0) {
+                            if (queryDocumentSnapshots.size() > 0) {
                                 Map<String, Object> data = doc.getData();
                                 int salary;
                                 if (((String) data.get(Constants.SALARY_SALARY)).isEmpty()) {
@@ -97,12 +123,12 @@ public class SalaryRepository {
 
     public void addSalariesToDatabase(final ArrayList<Salary> salaries, final MyAddSalaryCallback callback) {
         Log.d("debug", "SalaryRepository: addSalariesToDatabase(): salaries.size() = " + salaries.size());
-        for(int i = 0; i < salaries.size(); i++) {
+        for (int i = 0; i < salaries.size(); i++) {
             final int tempI = i;
             addSalaryToDatabase(salaries.get(i), new MyAddSalaryCallback() {
                 @Override
                 public void onCallback(String lastSalaryId) {
-                    if(tempI == salaries.size() - 1) {
+                    if (tempI == salaries.size() - 1) {
                         callback.onCallback(lastSalaryId);
                     }
                 }
@@ -143,7 +169,44 @@ public class SalaryRepository {
         return salaries;
     }
 
-    public void deleteSalaryByEventId(String eventId, final MyDeleteSalaryByEventIdCallback callback) {
+    public void deleteSalaryByEventIdAndEmployeeId(String eventId, String employeeId, final MyDeleteSalaryByEventIdAndEmployeeIdCallback callback) {
+        DatabaseAccess.getInstance().getDatabase()
+                .collection(Constants.SALARY_COLLECTION)
+                .whereEqualTo(Constants.SALARY_EVENT_ID, eventId)
+                .whereEqualTo(Constants.SALARY_EMPLOYEE_ID, employeeId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                DatabaseAccess.getInstance().getDatabase()
+                                        .collection(Constants.SALARY_COLLECTION)
+                                        .document(document.getId())
+                                        .delete()
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d("debug", "SalaryRepository: deleteSalariesByEventId: delete succeed");
+                                                callback.onCallback(true);
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                callback.onCallback(false);
+                                            }
+                                        });
+                            }
+                        } else {
+                            callback.onCallback(false);
+                            Log.d("debug", "Error getting salary records: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void deleteSalariesByEventId(String eventId, final MyDeleteSalariesByEventIdCallback callback) {
         DatabaseAccess.getInstance().getDatabase()
                 .collection(Constants.SALARY_COLLECTION)
                 .whereEqualTo(Constants.SALARY_EVENT_ID, eventId)
@@ -219,7 +282,15 @@ public class SalaryRepository {
         void onCallback(String salaryId);
     }
 
-    public interface MyDeleteSalaryByEventIdCallback {
+    public interface MyDeleteSalariesByEventIdCallback {
         void onCallback(boolean deleteSucceed);
+    }
+
+    public interface MyDeleteSalaryByEventIdAndEmployeeIdCallback {
+        void onCallback(boolean deleteSucceed);
+    }
+
+    public interface MyUpdateSalariesCallback {
+        void onCallback(boolean updateSucceed);
     }
 }

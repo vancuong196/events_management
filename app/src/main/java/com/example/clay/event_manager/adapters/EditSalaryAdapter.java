@@ -51,25 +51,17 @@ public class EditSalaryAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View view, ViewGroup parent) {
         if (view == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.layout_delete_salary_list_item, parent, false);
+            view = LayoutInflater.from(context).inflate(R.layout.layout_edit_salary_list_item, parent, false);
         }
-        TextView hoTenTextView =  view.findViewById(R.id.delete_salary_employee_name_text_view);
-        TextView chuyenMonTextView = view.findViewById(R.id.delete_salary_employee_speciality_text_view);
-        ImageButton deleteSalaryButton = view.findViewById(R.id.delete_salary_delete_button);
-        EditText salaryEditText = view.findViewById(R.id.delete_salary_salary_edit_text);
-        CheckBox paidCheckBox = view.findViewById(R.id.delete_salary_paid_checkbox);
+        TextView hoTenTextView =  view.findViewById(R.id.edit_salary_employee_name_text_view);
+        TextView chuyenMonTextView = view.findViewById(R.id.edit_salary_employee_speciality_text_view);
+        EditText salaryEditText = view.findViewById(R.id.edit_salary_salary_edit_text);
+        CheckBox paidCheckBox = view.findViewById(R.id.edit_salary_paid_checkbox);
 
-        deleteSalaryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                salariesIds.remove(position);
-                notifyDataSetChanged();
-            }
-        });
-
-        hoTenTextView.setText(allEmployees.get(salariesIds.get(position)).getHoTen());
-        chuyenMonTextView.setText(allEmployees.get(salariesIds.get(position)).getChuyenMon());
-        salaryEditText.setText(allSalaries.get(salariesIds.get(position)).getSalary());
+        //Fill information
+        hoTenTextView.setText(allEmployees.get(allSalaries.get(salariesIds.get(position)).getEmployeeId()).getHoTen());
+        chuyenMonTextView.setText(allEmployees.get(allSalaries.get(salariesIds.get(position)).getEmployeeId()).getChuyenMon());
+        salaryEditText.setText("" + allSalaries.get(salariesIds.get(position)).getSalary());
         paidCheckBox.setChecked(allSalaries.get(salariesIds.get(position)).isPaid());
 
         return view;
@@ -83,9 +75,7 @@ public class EditSalaryAdapter extends BaseAdapter {
         this.salariesIds = salariesIds;
     }
 
-    public void notifyDataSetChanged(ArrayList<String> salariesIds) {
-        this.salariesIds = salariesIds;
-        Log.d("debug", "deleteAdapter dataSetChanged size = " + salariesIds.size());
+    public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
     }
 }

@@ -3,13 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/event_details_action_delete_event"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         android:icon="@drawable/ic_delete"
         android:title="Xóa sự kiện"
         app:showAsAction="always" />
     <item
-        android:id="@+id/event_details_action_edit_event"
+        android:id="@+id/event_details_action_edit_salaries"
         android:orderInCategory="2"
+        android:icon="@drawable/ic_money"
+        android:title=""
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/event_details_action_edit_event"
+        android:orderInCategory="3"
         android:icon="@drawable/ic_edit"
         android:title="Chỉnh sửa"
         app:showAsAction="always" />

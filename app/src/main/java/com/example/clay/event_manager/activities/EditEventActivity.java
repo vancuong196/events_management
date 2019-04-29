@@ -6,9 +6,11 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -19,9 +21,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.example.clay.event_manager.R;
-import com.example.clay.event_manager.adapters.DeleteSalaryAdapter;
-import com.example.clay.event_manager.adapters.EditSalaryAdapter;
-import com.example.clay.event_manager.adapters.SelectEmployeeInEditEventAdapter;
+import com.example.clay.event_manager.adapters.DeleteEmployeeAdapter;
+import com.example.clay.event_manager.adapters.SelectEmployeeAdapter;
 import com.example.clay.event_manager.customlistviews.CustomListView;
 import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.models.Salary;
@@ -34,11 +35,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class EditEventActivity extends AppCompatActivity {
+    android.support.v7.widget.Toolbar toolbar;
+
     EditText titleEditText, startDateEditText, startTimeEditText, endDateEditText, endTimeEditText,
             locationEditText, noteEditText;
     TextView startDowTextView, endDowTextView;
-    Button addEmployeesButton, cancelButton, okButton;
-    CustomListView salariesListView;
+    Button addEmployeesButton;
+    CustomListView employeeListView;
 
     DatePickerDialog.OnDateSetListener dateSetListener;
     TimePickerDialog.OnTimeSetListener timeSetListener;
@@ -46,9 +49,8 @@ public class EditEventActivity extends AppCompatActivity {
 
     String eventId;
     Event event;
-    ArrayList<String> selectedSalariesIds;
-    DeleteSalaryAdapter deleteSalaryAdapter;
-    SelectEmployeeInEditEventAdapter selectEmployeeAdapter;
+    ArrayList<String> selectedEmployeesIds;
+    DeleteEmployeeAdapter deleteEmployeeAdapter;
 
     Calendar calendar = Calendar.getInstance();
 
@@ -64,16 +66,36 @@ public class EditEventActivity extends AppCompatActivity {
 
         eventId = getIntent().getStringExtra("eventId");
         event = EventRepository.getInstance(null).getAllEvents().get(eventId);
-        selectedSalariesIds = new ArrayList<>(SalaryRepository.getInstance(null).getSalariesByEventId(eventId).keySet());
+        selectedEmployeesIds = EmployeeRepository.getInstance(null).getEmployeesIdsByEventId(eventId);
 
-        deleteSalaryAdapter = new DeleteSalaryAdapter(this, selectedSalariesIds);
-        selectEmployeeAdapter = new SelectEmployeeInEditEventAdapter(this, selectedSalariesIds);
+        deleteEmployeeAdapter = new DeleteEmployeeAdapter(this, selectedEmployeesIds);
 
         fillInformation();
         addEvents();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.edit_event_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.edit_event_action_save_event) {
+            saveEvent();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void connectViews() {
+        toolbar = findViewById(R.id.edit_event_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Chỉnh sửa sự kiện");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         titleEditText = findViewById(R.id.event_edit_title_edit_text);
         startDateEditText = findViewById(R.id.event_edit_start_date_edit_text);
         startTimeEditText = findViewById(R.id.event_edit_start_time_edit_text);
@@ -87,10 +109,8 @@ public class EditEventActivity extends AppCompatActivity {
         noteEditText = findViewById(R.id.event_edit_note_edit_text);
 
         addEmployeesButton = findViewById(R.id.event_edit_add_employee_button);
-        cancelButton = findViewById(R.id.event_edit_cancel_button);
-        okButton = findViewById(R.id.event_edit_ok_button);
 
-        salariesListView = findViewById(R.id.event_edit_salaries_list_view);
+        employeeListView = findViewById(R.id.event_edit_employee_list_view);
     }
 
     private void fillInformation() {
@@ -112,7 +132,7 @@ public class EditEventActivity extends AppCompatActivity {
         locationEditText.setText(event.getDiaDiem());
         noteEditText.setText(event.getGhiChu());
 
-        salariesListView.setAdapter(deleteSalaryAdapter);
+        employeeListView.setAdapter(deleteEmployeeAdapter);
     }
 
     private void addEvents() {
@@ -280,100 +300,155 @@ public class EditEventActivity extends AppCompatActivity {
                         mm, false).show();
             }
         });
-        okButton.setOnClickListener(new View.OnClickListener() {
+    }
+
+    private void saveEvent() {
+        if (!titleEditText.getText().toString().isEmpty() &&
+                !startDateEditText.getText().toString().isEmpty() &&
+                !endDateEditText.getText().toString().isEmpty() &&
+                !startTimeEditText.getText().toString().isEmpty() &&
+                !endTimeEditText.getText().toString().isEmpty()) {
+            final Event editedEvent = new Event(eventId,
+                    titleEditText.getText().toString(),
+                    startDateEditText.getText().toString(),
+                    endDateEditText.getText().toString(),
+                    startTimeEditText.getText().toString(),
+                    endTimeEditText.getText().toString(),
+                    locationEditText.getText().toString(),
+                    noteEditText.getText().toString());
+
+            //Save edited event to sukien collection
+            saveToDatabase(editedEvent);
+        } else {
+            if (titleEditText.getText().toString().isEmpty()) {
+                titleEditText.setError("Xin mời nhập");
+            } else {
+                titleEditText.setError(null);
+            }
+            if (startDateEditText.getText().toString().isEmpty()) {
+                startDateEditText.setError("Xin mời nhập");
+            } else {
+                startDateEditText.setError(null);
+            }
+            if (endDateEditText.getText().toString().isEmpty()) {
+                endDateEditText.setError("Xin mời nhập");
+            } else {
+                endDateEditText.setError(null);
+            }
+            if (startTimeEditText.getText().toString().isEmpty()) {
+                startTimeEditText.setError("Xin mời nhập");
+            } else {
+                startTimeEditText.setError(null);
+            }
+            if (endTimeEditText.getText().toString().isEmpty()) {
+                endTimeEditText.setError("Xin mời nhập");
+            } else {
+                endTimeEditText.setError(null);
+            }
+        }
+    }
+
+    private void saveToDatabase(Event editedEvent) {
+        //Update event
+        EventRepository.getInstance(null).updateEventToDatabase(editedEvent, new EventRepository.MyUpdateEventCallback() {
             @Override
-            public void onClick(View view) {
-                if (!titleEditText.getText().toString().isEmpty() &&
-                        !startDateEditText.getText().toString().isEmpty() &&
-                        !endDateEditText.getText().toString().isEmpty() &&
-                        !startTimeEditText.getText().toString().isEmpty() &&
-                        !endTimeEditText.getText().toString().isEmpty()) {
-                    Event event = new Event(eventId,
-                            titleEditText.getText().toString(),
-                            startDateEditText.getText().toString(),
-                            endDateEditText.getText().toString(),
-                            startTimeEditText.getText().toString(),
-                            endTimeEditText.getText().toString(),
-                            locationEditText.getText().toString(),
-                            noteEditText.getText().toString());
+            public void onCallback(boolean updateSucceed) {
+                Log.d("debug", "saveEditEvent");
+                ArrayList<String> unchangedEmployeesIds = EmployeeRepository.getInstance(null)
+                        .getEmployeesIdsByEventId(eventId);
 
-                    ArrayList<Salary> salaries = new ArrayList<>();
-                    for (int i = 0; i < salariesListView.getChildCount(); i++) {
-                        EditText salaryEditText = salariesListView.getChildAt(i)
-                                .findViewById(R.id.delete_salary_salary_edit_text);
-                        int salaryAmount;
-                        if(salaryEditText.getText().toString().isEmpty()) {
-                            salaryAmount = 0;
-                        } else {
-                            salaryAmount = Integer.parseInt(salaryEditText.getText().toString());
-                        }
-                        Salary tempSalary = new Salary("", eventId,
-                                SalaryRepository.getInstance(null).getAllSalaries()
-                                        .get(deleteSalaryAdapter.getSalariesIds().get(i)).getEmployeeId(),
-                                salaryAmount,
-                                false);
-                        salaries.add(tempSalary);
-                    }
-
-                    //Save edited event to sukien collection
-                    EventRepository.getInstance(null).updateEventToDatabase(event, salaries, new EventRepository.MyUpdateEventCallback() {
-                        @Override
-                        public void onCallback(boolean updateSucceed) {
-                            Intent intent = new Intent();
-                            intent.putExtra("edited?", true);
-                            intent.putExtra("editSucceed", updateSucceed);
-                            setResult(RESULT_OK, intent);
-                            Log.d("debug", "EditEventActivity: update event complete");
-                            ((Activity) context).finish();
-                        }
-                    });
-                } else {
-                    if (titleEditText.getText().toString().isEmpty()) {
-                        titleEditText.setError("Xin mời nhập");
-                    } else {
-                        titleEditText.setError(null);
-                    }
-                    if (startDateEditText.getText().toString().isEmpty()) {
-                        startDateEditText.setError("Xin mời nhập");
-                    } else {
-                        startDateEditText.setError(null);
-                    }
-                    if (endDateEditText.getText().toString().isEmpty()) {
-                        endDateEditText.setError("Xin mời nhập");
-                    } else {
-                        endDateEditText.setError(null);
-                    }
-                    if (startTimeEditText.getText().toString().isEmpty()) {
-                        startTimeEditText.setError("Xin mời nhập");
-                    } else {
-                        startTimeEditText.setError(null);
-                    }
-                    if (endTimeEditText.getText().toString().isEmpty()) {
-                        endTimeEditText.setError("Xin mời nhập");
-                    } else {
-                        endTimeEditText.setError(null);
+                ArrayList<String> mergedEmployeesIds = new ArrayList<>();
+                mergedEmployeesIds.addAll(unchangedEmployeesIds);
+                for (String id : selectedEmployeesIds) {
+                    if (!mergedEmployeesIds.contains(id)) {
+                        mergedEmployeesIds.add(id);
                     }
                 }
+
+                Log.d("debug", "got unchanged employees Ids size = " + unchangedEmployeesIds.size());
+                Log.d("debug", "merged employees Ids size = " + mergedEmployeesIds.size());
+                addNewSalariesAndDeleteOldSalaries(unchangedEmployeesIds, mergedEmployeesIds);
             }
         });
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.putExtra("edited?", false);
-                setResult(RESULT_OK, intent);
-                finish();
+    }
+
+    private void addNewSalariesAndDeleteOldSalaries(final ArrayList<String> unchangedEmployeesIds, ArrayList<String> mergedEmployeesIds) {
+        Log.d("debug", "selected employees size = " + selectedEmployeesIds.size());
+        ArrayList<String> toBeRemovedEmployeesIds = new ArrayList<>();
+        ArrayList<String> toBeAddedEmployeesIds = new ArrayList<>();
+        for (String id : mergedEmployeesIds) {
+            if (!selectedEmployeesIds.contains(id)) {
+                toBeRemovedEmployeesIds.add(id);
+            } else if (!unchangedEmployeesIds.contains(id)) {
+                toBeAddedEmployeesIds.add(id);
             }
-        });
+        }
+
+        final ArrayList<String> tempToBeAddedEmployeesIds = new ArrayList<>();
+        tempToBeAddedEmployeesIds.addAll(toBeAddedEmployeesIds);
+        final ArrayList<String> tempToBeRemovedEmployeesIds = new ArrayList<>();
+        tempToBeRemovedEmployeesIds.addAll(toBeRemovedEmployeesIds);
+
+        if (tempToBeAddedEmployeesIds.size() > 0) {
+            for (final String addId : tempToBeAddedEmployeesIds) {
+                //Add new salaries - contained in selected but not in unchanged
+                SalaryRepository.getInstance(null).addSalaryToDatabase(
+                        new Salary("", eventId, addId, 0, false),
+                        new SalaryRepository.MyAddSalaryCallback() {
+                            @Override
+                            public void onCallback(String salaryId) {
+                                Log.d("debug", "add new salaries");
+//                                if (tempI == selectedEmployeesIds.size() - 1) {
+//                                    deleteOldSalaries(unchangedEmployeesIds);
+//                                }
+                                if (tempToBeAddedEmployeesIds.indexOf(addId) == (tempToBeAddedEmployeesIds.size() - 1)) {
+                                    deleteOldSalaries(tempToBeRemovedEmployeesIds);
+                                }
+                            }
+                        });
+            }
+        } else {
+            deleteOldSalaries(tempToBeRemovedEmployeesIds);
+        }
+    }
+
+    private void deleteOldSalaries(final ArrayList<String> toBeRemovedEmployeesIds) {
+        if(toBeRemovedEmployeesIds.size() > 0) {
+            for (final String removeId : toBeRemovedEmployeesIds) {
+                SalaryRepository.getInstance(null).deleteSalaryByEventIdAndEmployeeId(eventId,
+                        removeId, new SalaryRepository.MyDeleteSalaryByEventIdAndEmployeeIdCallback() {
+                            @Override
+                            public void onCallback(boolean deleteSucceed) {
+                                Log.d("debug", "delete old salaries");
+                                if (toBeRemovedEmployeesIds.indexOf(removeId) == (toBeRemovedEmployeesIds.size() - 1)) {
+                                    Intent intent = new Intent();
+                                    intent.putExtra("edit event", true);
+                                    intent.putExtra("edit event succeed", true);
+                                    setResult(RESULT_OK, intent);
+                                    Log.d("debug", "EditEventActivity: update event complete");
+                                    ((Activity) context).finish();
+                                }
+                            }
+                        });
+            }
+        } else {
+            Intent intent = new Intent();
+            intent.putExtra("edit event", true);
+            intent.putExtra("edit event succeed", true);
+            setResult(RESULT_OK, intent);
+            Log.d("debug", "EditEventActivity: update event complete");
+            ((Activity) context).finish();
+        }
     }
 
     private void openAddEmployeeDialog() {
         final Dialog addEmployeeDialog = new Dialog(this);
         addEmployeeDialog.setContentView(R.layout.dialog_select_employee);
 
-        final ListView selectEmployeeListView = (ListView) addEmployeeDialog.findViewById(R.id.select_employee_listview);
-        Button cancelButton = (Button) addEmployeeDialog.findViewById(R.id.cancel_button);
-        Button okButton = (Button) addEmployeeDialog.findViewById(R.id.ok_button);
+        final SelectEmployeeAdapter selectEmployeeAdapter = new SelectEmployeeAdapter(this, selectedEmployeesIds);
+        final ListView selectEmployeeListView = addEmployeeDialog.findViewById(R.id.select_employee_listview);
+        Button cancelButton = addEmployeeDialog.findViewById(R.id.cancel_button);
+        Button okButton = addEmployeeDialog.findViewById(R.id.ok_button);
 
         selectEmployeeListView.setAdapter(selectEmployeeAdapter);
 
@@ -381,20 +456,18 @@ public class EditEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 CheckBox tempCheckbox;
-                ArrayList<String> selectedEmployessIds = EmployeeRepository.getInstance(null).getEmployeesIdsFromSalariesIds(selectedSalariesIds);
                 for (int i = 0; i < selectEmployeeListView.getChildCount(); i++) {
                     tempCheckbox = selectEmployeeListView.getChildAt(i).findViewById(R.id.add_employee_checkbox);
                     if (tempCheckbox.isChecked() &&
-                            !selectedEmployessIds.contains(selectEmployeeAdapter.getAllEmployeesIds()[i])) {
-                        selectedSalariesIds.add(selectEmployeeAdapter.getAllEmployeesIds()[i]);
+                            !selectedEmployeesIds.contains(selectEmployeeAdapter.getAllEmployeesIds()[i])) {
+                        selectedEmployeesIds.add(selectEmployeeAdapter.getAllEmployeesIds()[i]);
                     }
                     if (!tempCheckbox.isChecked() &&
-                            selectedEmployessIds.contains(selectEmployeeAdapter.getAllEmployeesIds()[i])) {
-                        selectedSalariesIds.remove(selectEmployeeAdapter.getAllEmployeesIds()[i]);
+                            selectedEmployeesIds.contains(selectEmployeeAdapter.getAllEmployeesIds()[i])) {
+                        selectedEmployeesIds.remove(selectEmployeeAdapter.getAllEmployeesIds()[i]);
                     }
                 }
-                Log.d("debug", "selected " + selectedSalariesIds.size() + " employees");
-                deleteSalaryAdapter.notifyDataSetChanged();
+                deleteEmployeeAdapter.notifyDataSetChanged();
                 addEmployeeDialog.dismiss();
             }
         });
@@ -407,5 +480,11 @@ public class EditEventActivity extends AppCompatActivity {
         if (!isFinishing()) {
             addEmployeeDialog.show();
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
     }
 }

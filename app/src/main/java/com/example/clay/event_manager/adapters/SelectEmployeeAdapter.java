@@ -12,22 +12,22 @@ import android.widget.TextView;
 import com.example.clay.event_manager.models.Employee;
 import com.example.clay.event_manager.R;
 import com.example.clay.event_manager.models.Salary;
+import com.example.clay.event_manager.repositories.EmployeeRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SelectEmployeeInAddEventAdapter extends BaseAdapter {
+public class SelectEmployeeAdapter extends BaseAdapter {
 
     private final Activity context;
     private ArrayList<String> selectedEmployeesIds;
     private HashMap<String, Employee> allEmployees;
     private String[] allEmployeesIds;
 
-    public SelectEmployeeInAddEventAdapter(Activity context, ArrayList<String> selectedEmployeesIds,
-                                           HashMap<String, Employee> allEmployees) {
+    public SelectEmployeeAdapter(Activity context, ArrayList<String> selectedEmployeesIds) {
         this.context = context;
         this.selectedEmployeesIds = selectedEmployeesIds;
-        this.allEmployees = allEmployees;
+        this.allEmployees = EmployeeRepository.getInstance(null).getAllEmployees();
         allEmployeesIds = allEmployees.keySet().toArray(new String[allEmployees.size()]);
     }
 

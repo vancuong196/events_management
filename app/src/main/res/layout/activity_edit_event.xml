@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <android.support.v7.widget.Toolbar
-        android:id="@+id/event_details_toolbar"
+        android:id="@+id/edit_event_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
@@ -12,7 +12,8 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
     <ScrollView
-        android:layout_below="@id/event_details_toolbar"
+        android:id="@+id/scroll_view"
+        android:layout_below="@id/edit_event_toolbar"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         xmlns:android="http://schemas.android.com/apk/res/android">
@@ -40,7 +41,8 @@
                 android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
                 <TextView
                     android:id="@+id/edit_event_start_text_view"
                     android:layout_width="match_parent"
@@ -111,7 +113,7 @@
                         android:layout_weight="3"
                         android:clickable="true"
                         android:focusable="false"
-                        android:hint="Ngày kết thúc"
+                        android:hint="Ngày bắt đầu"
                         android:textSize="@dimen/content"/>
 
                     <EditText
@@ -146,7 +148,7 @@
                     android:textSize="@dimen/title"
                     android:textStyle="bold"/>
                 <com.example.clay.event_manager.customlistviews.CustomListView
-                    android:id="@+id/event_edit_salaries_list_view"
+                    android:id="@+id/event_edit_employee_list_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 </com.example.clay.event_manager.customlistviews.CustomListView>
@@ -171,23 +173,5 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:weightSum="2">
-        <Button
-            android:id="@+id/event_edit_cancel_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Hủy" />
-        <Button
-            android:id="@+id/event_edit_ok_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="OK" />
-    </LinearLayout>
+
 </RelativeLayout>

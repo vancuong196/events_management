@@ -185,4 +185,10 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
     public void notifyError() {
 
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mainViewEventAdapter.notifyDataSetChanged(currentDate);
+    }
 }
