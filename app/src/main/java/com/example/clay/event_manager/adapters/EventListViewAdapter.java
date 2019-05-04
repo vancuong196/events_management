@@ -18,7 +18,9 @@ import com.example.clay.event_manager.models.Event;
 
 import java.util.List;
 
-public class EventListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+public class EventListViewAdapter {
+    //extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+ /*
     List<Event> eventList;
     private static final int RESULT_FROM_DELETE_EVENT_INTENT = 1;
     private static final int RESULT_FROM_ADD_EVENT_INTENT = 2;
@@ -70,5 +72,5 @@ public class EventListViewAdapter extends RecyclerView.Adapter<RecyclerView.View
             layout = itemView.findViewById(R.id.event_item_layout);
         }
     }
-
+*/
 }

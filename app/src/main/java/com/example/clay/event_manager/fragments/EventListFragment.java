@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,9 +16,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.CalendarView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.clay.event_manager.R;
@@ -25,26 +23,25 @@ import com.example.clay.event_manager.activities.AddEventActivity;
 import com.example.clay.event_manager.activities.EventDetailsActivity;
 import com.example.clay.event_manager.activities.RootActivity;
 import com.example.clay.event_manager.adapters.EventListViewAdapter;
-import com.example.clay.event_manager.adapters.MainViewEventAdapter;
-import com.example.clay.event_manager.customlistviews.CustomListView;
 import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
+import com.example.clay.event_manager.models.DrawableCalendarEvent;
 import com.example.clay.event_manager.models.Event;
-import com.example.clay.event_manager.repositories.EmployeeRepository;
 import com.example.clay.event_manager.repositories.EventRepository;
-import com.example.clay.event_manager.repositories.SalaryRepository;
-import com.example.clay.event_manager.utils.CalendarUtil;
-import com.example.clay.event_manager.utils.Constants;
+import com.github.tibolte.agendacalendarview.AgendaCalendarView;
+import com.github.tibolte.agendacalendarview.CalendarPickerController;
+import com.github.tibolte.agendacalendarview.models.CalendarEvent;
+import com.github.tibolte.agendacalendarview.models.DayItem;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 public class EventListFragment extends Fragment implements IOnDataLoadComplete {
 
     EventListViewAdapter listViewAdapter;
     RecyclerView recyclerView;
-    boolean isFirstLoad = true;
+    AgendaCalendarView agendaCalendarView;
     List<Event> eventsList;
     String currentDate;
     private static final int RESULT_FROM_DELETE_EVENT_INTENT = 1;
@@ -100,23 +97,58 @@ public class EventListFragment extends Fragment implements IOnDataLoadComplete {
 
         return super.onOptionsItemSelected(item);
     }
-
-    private void connectViews(View v) {
-        recyclerView =  v.findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        List<Event> data = new ArrayList<Event>() {
-        };
-        eventsList = new ArrayList<>();
-        listViewAdapter = new EventListViewAdapter(eventsList,getActivity());
-        recyclerView.setAdapter(listViewAdapter);
-        initDataForAdapter();
-    }
-    private void initDataForAdapter() {
+    private void initAgendarData(List<CalendarEvent> eventList) {
         for (String e: EventRepository.getInstance(null).getAllEvents().keySet())
         {
-            eventsList.add(EventRepository.getInstance(null).getAllEvents().get(e));
+            try {
+                Event event = EventRepository.getInstance(null).getAllEvents().get(e);
+                String day1[] =event.getNgayBatDau().split("/");
+                String day2[] =event.getNgayKetThuc().split("/");
+                Calendar startTime1 = Calendar.getInstance();
+                startTime1.set(Integer.parseInt(day1[2]),Integer.parseInt(day1[1]),Integer.parseInt(day1[0]));
+                Calendar endTime1 = Calendar.getInstance();
+                endTime1.set(Integer.parseInt(day2[2]),Integer.parseInt(day2[1]),Integer.parseInt(day2[0]));
+                DrawableCalendarEvent event1 = new DrawableCalendarEvent(event.getTen(), event.getGhiChu(), event.getDiaDiem(),
+                        ContextCompat.getColor(getContext(), R.color.blue_selected), startTime1, endTime1, false,e);
+                eventList.add(event1);
+            } catch (Exception ex) {
+                Log.d("EventList parse",ex.getMessage());
+            }
+
+
         };
-        listViewAdapter.notifyDataSetChanged();
+    }
+    private void intCalendar(){
+        Calendar minDate = Calendar.getInstance();
+        Calendar maxDate = Calendar.getInstance();
+        minDate.add(Calendar.MONTH, -2);
+        minDate.set(Calendar.DAY_OF_MONTH, 1);
+        maxDate.add(Calendar.YEAR, 1);
+        List<CalendarEvent> eventList = new ArrayList<>();
+        initAgendarData(eventList);
+
+        agendaCalendarView.init(eventList, minDate, maxDate, Locale.getDefault(), new CalendarPickerController() {
+            @Override
+            public void onDaySelected(DayItem dayItem) {
+
+            }
+
+            @Override
+            public void onEventSelected(CalendarEvent event) {
+                Intent eventDetailsIntent = new Intent(getContext(), EventDetailsActivity.class);
+                eventDetailsIntent.putExtra("eventId", ((DrawableCalendarEvent) event).getEventID() );
+                getActivity().startActivityForResult(eventDetailsIntent, RESULT_FROM_DELETE_EVENT_INTENT);
+            }
+
+            @Override
+            public void onScrollToDate(Calendar calendar) {
+
+            }
+        });
+    }
+    private void connectViews(View v) {
+        agendaCalendarView = v.findViewById(R.id.agenda_calendar_view);
+        intCalendar();
     }
 
     @Override
@@ -130,7 +162,7 @@ public class EventListFragment extends Fragment implements IOnDataLoadComplete {
                     public void onCallback(boolean deleteEventSucceed, boolean deleteSalariesSucceed) {
                         if(deleteEventSucceed && deleteSalariesSucceed) {
                             Toast.makeText(getActivity(), "Xóa sự kiện thành công", Toast.LENGTH_SHORT).show();
-                            listViewAdapter.notifyDataSetChanged();
+                            intCalendar();
                         } else {
                             Toast.makeText(getActivity(), "Xóa sự kiện thất bại", Toast.LENGTH_SHORT).show();
                         }
@@ -139,7 +171,7 @@ public class EventListFragment extends Fragment implements IOnDataLoadComplete {
             }
         } else if (requestCode == RESULT_FROM_ADD_EVENT_INTENT && resultCode == Activity.RESULT_OK) {
             if(data.getBooleanExtra("added?", false)) {
-                listViewAdapter.notifyDataSetChanged();
+                intCalendar();
             }
         }
     }

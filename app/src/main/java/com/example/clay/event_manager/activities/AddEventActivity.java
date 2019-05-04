@@ -22,7 +22,6 @@ import com.example.clay.event_manager.R;
 import com.example.clay.event_manager.adapters.DeleteEmployeeAdapter;
 import com.example.clay.event_manager.adapters.SelectEmployeeInAddEventAdapter;
 import com.example.clay.event_manager.customlistviews.CustomListView;
-import com.example.clay.event_manager.models.Employee;
 import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.models.Salary;
 import com.example.clay.event_manager.repositories.EmployeeRepository;
@@ -31,7 +30,6 @@ import com.example.clay.event_manager.utils.CalendarUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 
 public class AddEventActivity extends AppCompatActivity {
     EditText titleEditText, startDateEditText, startTimeEditText, endDateEditText, endTimeEditText,
