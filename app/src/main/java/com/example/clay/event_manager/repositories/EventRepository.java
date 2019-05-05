@@ -29,6 +29,7 @@ public class EventRepository{
     static EventRepository instance;
     private HashMap<String, Event> allEvents;
     IOnDataLoadComplete listener;
+    boolean isLoaded;
 
     private EventRepository(final IOnDataLoadComplete listener) {
 //        allEvents = new ArrayList<>();
@@ -39,7 +40,9 @@ public class EventRepository{
                 if(eventList != null) {
                     allEvents = eventList;
                     if (EventRepository.this.listener != null) {
+                        isLoaded = true;
                         EventRepository.this.listener.notifyOnLoadComplete();
+
                     }
                 }
             }
@@ -52,6 +55,11 @@ public class EventRepository{
     static public EventRepository getInstance(IOnDataLoadComplete listener) {
         if (instance == null) {
             instance = new EventRepository(listener);
+        } else  {
+            instance.listener = listener;
+            if (instance.isLoaded&&listener!=null) {
+                instance.listener.notifyOnLoadComplete();
+            }
         }
         return instance;
     }

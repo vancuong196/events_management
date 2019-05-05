@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.example.clay.event_manager.fragments.EventListFragment;
 import com.example.clay.event_manager.fragments.EventManagementFragment;
 import com.example.clay.event_manager.fragments.UserManagementFragment;
 import com.example.clay.event_manager.R;
@@ -73,11 +74,18 @@ public class RootActivity extends AppCompatActivity
         transaction.commit();
     }
 
-    private void openEventManagementFragment() {
+    public void openEventManagementFragment() {
 
         // Replace root view to default fragment
         toolbar.setTitle("Sự kiện");
         Fragment newFragment = new EventManagementFragment();
+        ReplaceFragment(newFragment);
+    }
+    public void openEventListFragment() {
+
+        // Replace root view to default fragment
+        toolbar.setTitle("Sự kiện");
+        Fragment newFragment = new EventListFragment();
         ReplaceFragment(newFragment);
     }
 

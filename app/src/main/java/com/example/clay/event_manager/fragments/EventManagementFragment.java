@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import com.example.clay.event_manager.activities.AddEventActivity;
 import com.example.clay.event_manager.activities.ViewEventActivity;
+import com.example.clay.event_manager.activities.RootActivity;
+import com.example.clay.event_manager.activities.ViewEventActivity;
 import com.example.clay.event_manager.adapters.MainViewEventAdapter;
 import com.example.clay.event_manager.customlistviews.CustomListView;
 import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
@@ -108,7 +110,8 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
         }
         //Xem sự kiện theo danh sách dọc
         if (id == R.id.action_list_view) {
-            Toast.makeText(getActivity(),"Xem theo danh sách",Toast.LENGTH_SHORT).show();
+            RootActivity activity = (RootActivity) getActivity();
+            activity.openEventListFragment();
             return true;
         }
 
