@@ -9,8 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -43,7 +41,7 @@ public class EditSalaryFromEventDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_salary_from_event_details);
+        setContentView(R.layout.activity_edit_salary_from_view_event);
 
         context = this;
         connectViews();
@@ -53,7 +51,7 @@ public class EditSalaryFromEventDetailsActivity extends AppCompatActivity {
         salaries = SalaryRepository.getInstance(null).getSalariesByEventId(eventId);
         salariesIds = new ArrayList<>(salaries.keySet());
 
-        Log.d("debug", "EventDetailsActivity: salaries.size() = " + salaries.size());
+        Log.d("debug", "ViewEventActivity: salaries.size() = " + salaries.size());
 
         editSalaryAdapter = new EditSalaryAdapter(this, salariesIds);
         salaryListView.setAdapter(editSalaryAdapter);
@@ -106,11 +104,11 @@ public class EditSalaryFromEventDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        titleEditText = findViewById(R.id.edit_salary_from_event_details_title_text_view);
-        timeEditText = findViewById(R.id.edit_salary_from_event_details_time_text_view);
-        locationEditText = findViewById(R.id.edit_salary_from_event_details_location_text_view);
-        noteEditText = findViewById(R.id.edit_salary_from_event_details_note_text_view);
-        salaryListView = findViewById(R.id.edit_salary_from_event_details_salary_list_view);
+        titleEditText = findViewById(R.id.edit_salary_from_view_event_title_text_view);
+        timeEditText = findViewById(R.id.edit_salary_from_view_event_time_text_view);
+        locationEditText = findViewById(R.id.edit_salary_from_view_event_location_text_view);
+        noteEditText = findViewById(R.id.edit_salary_from_view_event_note_text_view);
+        salaryListView = findViewById(R.id.edit_salary_from_view_event_salary_list_view);
     }
 
     private void addEvents() {

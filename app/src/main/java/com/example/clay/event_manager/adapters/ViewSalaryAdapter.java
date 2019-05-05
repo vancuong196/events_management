@@ -47,8 +47,8 @@ public class ViewSalaryAdapter extends BaseAdapter {
             view = LayoutInflater.from(context).inflate(R.layout.layout_view_salary_list_item, parent, false);
         }
 
-        TextView hoTenTextView = view.findViewById(R.id.view_salary_employee_name_textview);
-        TextView chuyenMonTextView = view.findViewById(R.id.view_salary_employee_speciality_textview);
+        TextView hoTenTextView = view.findViewById(R.id.view_salary_employee_name_text_view);
+        TextView chuyenMonTextView = view.findViewById(R.id.view_salary_employee_speciality_text_view);
         TextView luongTextView = view.findViewById(R.id.view_salary_salary_text_view);
         CheckBox daThanhToanCheckBox = view.findViewById(R.id.view_salary_paid_checkbox);
 

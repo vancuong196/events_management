@@ -1,14 +1,12 @@
 package com.example.clay.event_manager.adapters;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.clay.event_manager.R;
@@ -53,7 +51,7 @@ public class EditSalaryAdapter extends BaseAdapter {
         if (view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.layout_edit_salary_list_item, parent, false);
         }
-        TextView hoTenTextView =  view.findViewById(R.id.edit_salary_employee_name_text_view);
+        TextView hoTenTextView = view.findViewById(R.id.edit_salary_employee_name_text_view);
         TextView chuyenMonTextView = view.findViewById(R.id.edit_salary_employee_speciality_text_view);
         EditText salaryEditText = view.findViewById(R.id.edit_salary_salary_edit_text);
         CheckBox paidCheckBox = view.findViewById(R.id.edit_salary_paid_checkbox);
@@ -63,6 +61,7 @@ public class EditSalaryAdapter extends BaseAdapter {
         chuyenMonTextView.setText(allEmployees.get(allSalaries.get(salariesIds.get(position)).getEmployeeId()).getChuyenMon());
         salaryEditText.setText("" + allSalaries.get(salariesIds.get(position)).getSalary());
         paidCheckBox.setChecked(allSalaries.get(salariesIds.get(position)).isPaid());
+
 
         return view;
     }

@@ -99,11 +99,7 @@ public class SalaryRepository {
                             if (queryDocumentSnapshots.size() > 0) {
                                 Map<String, Object> data = doc.getData();
                                 int salary;
-                                if (((String) data.get(Constants.SALARY_SALARY)).isEmpty()) {
-                                    salary = 0;
-                                } else {
-                                    salary = Integer.parseInt((String) data.get(Constants.SALARY_SALARY));
-                                }
+                                salary = Integer.parseInt((String) data.get(Constants.SALARY_SALARY));
                                 Salary tempSalary = new Salary(doc.getId(),
                                         (String) data.get(Constants.SALARY_EVENT_ID),
                                         (String) data.get(Constants.SALARY_EMPLOYEE_ID),

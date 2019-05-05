@@ -15,7 +15,7 @@
             android:name=".activities.EditEventActivity"
             android:noHistory="true"
             android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".activities.EventDetailsActivity" />
+        <activity android:name=".activities.ViewEventActivity" />
         <activity android:name=".activities.RootActivity$EventDetailsActivity" />
         <activity
             android:name=".activities.RootActivity"
@@ -31,7 +31,6 @@
             android:name=".activities.AddEventActivity"
             android:label="Thêm sự kiện"
             android:noHistory="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:windowSoftInputMode="adjustResize"/>
     </application>
 

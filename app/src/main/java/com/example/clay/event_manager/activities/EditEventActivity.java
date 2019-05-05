@@ -121,10 +121,10 @@ public class EditEventActivity extends AppCompatActivity {
         endTimeEditText.setText(event.getGioKetThuc());
 
         try {
-            startDowTextView.setText(CalendarUtil.getInstance().getSdfDayOfWeek()
-                    .format(CalendarUtil.getInstance().getSdfDayMonthYear().parse(startDateEditText.getText().toString())));
-            endDowTextView.setText(CalendarUtil.getInstance().getSdfDayOfWeek()
-                    .format(CalendarUtil.getInstance().getSdfDayMonthYear().parse(endDateEditText.getText().toString())));
+            startDowTextView.setText(CalendarUtil.sdfDayOfWeek
+                    .format(CalendarUtil.sdfDayMonthYear.parse(startDateEditText.getText().toString())));
+            endDowTextView.setText(CalendarUtil.sdfDayOfWeek
+                    .format(CalendarUtil.sdfDayMonthYear.parse(endDateEditText.getText().toString())));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -152,22 +152,18 @@ public class EditEventActivity extends AppCompatActivity {
 
 //                Update TextEdits & TextViews;
                 if (currentView == startDateEditText) {
-                    startDateEditText.setText(CalendarUtil.getInstance().getSdfDayMonthYear()
-                            .format(calendar.getTime()));
-                    startDowTextView.setText(CalendarUtil.getInstance().getSdfDayOfWeek()
-                            .format(calendar.getTime()));
+                    startDateEditText.setText(CalendarUtil.sdfDayMonthYear.format(calendar.getTime()));
+                    startDowTextView.setText(CalendarUtil.sdfDayOfWeek.format(calendar.getTime()));
                 } else {
-                    endDateEditText.setText(CalendarUtil.getInstance().getSdfDayMonthYear()
-                            .format(calendar.getTime()));
-                    endDowTextView.setText(CalendarUtil.getInstance().getSdfDayOfWeek()
-                            .format(calendar.getTime()));
+                    endDateEditText.setText(CalendarUtil.sdfDayMonthYear.format(calendar.getTime()));
+                    endDowTextView.setText(CalendarUtil.sdfDayOfWeek.format(calendar.getTime()));
                 }
 
 //                Set (end time = start time) if (end date == start date) and (end time < start time)
                 try {
                     if (endDateEditText.getText().toString().equals(startDateEditText.getText().toString())
-                            && CalendarUtil.getInstance().getSdfTime().parse(endTimeEditText.getText().toString()).getTime() <
-                            CalendarUtil.getInstance().getSdfTime().parse(startTimeEditText.getText().toString()).getTime()) {
+                            && CalendarUtil.sdfTime.parse(endTimeEditText.getText().toString()).getTime() <
+                            CalendarUtil.sdfTime.parse(startTimeEditText.getText().toString()).getTime()) {
                         endTimeEditText.setText(startTimeEditText.getText().toString());
                     }
                 } catch (Exception e) {
@@ -182,21 +178,20 @@ public class EditEventActivity extends AppCompatActivity {
                 calendar.set(Calendar.MINUTE, minute);
 
                 if (currentView == startTimeEditText) {
-                    startTimeEditText.setText(CalendarUtil.getInstance().getSdfTime().format(calendar.getTime()));
+                    startTimeEditText.setText(CalendarUtil.sdfTime.format(calendar.getTime()));
                 } else {
-                    endTimeEditText.setText(CalendarUtil.getInstance().getSdfTime().format(calendar.getTime()));
+                    endTimeEditText.setText(CalendarUtil.sdfTime.format(calendar.getTime()));
                 }
                 boolean increaseEndDateCondition = !(endTimeEditText.getText().toString().isEmpty() ||
                         startTimeEditText.getText().toString().isEmpty());
                 try {
                     if (increaseEndDateCondition
                             && startDateEditText.getText().toString().equals(endDateEditText.getText().toString())
-                            && (CalendarUtil.getInstance().getSdfTime().parse(startTimeEditText.getText().toString()).getTime()
-                            > CalendarUtil.getInstance().getSdfTime().parse(endTimeEditText.getText().toString()).getTime())) {
-                        calendar.setTime(CalendarUtil.getInstance().getSdfDayMonthYear()
-                                .parse(endDateEditText.getText().toString()));
+                            && (CalendarUtil.sdfTime.parse(startTimeEditText.getText().toString()).getTime()
+                            > CalendarUtil.sdfTime.parse(endTimeEditText.getText().toString()).getTime())) {
+                        calendar.setTime(CalendarUtil.sdfDayMonthYear.parse(endDateEditText.getText().toString()));
                         calendar.add(Calendar.DATE, 1);
-                        endDateEditText.setText(CalendarUtil.getInstance().getSdfDayMonthYear().format(calendar.getTime()));
+                        endDateEditText.setText(CalendarUtil.sdfDayMonthYear.format(calendar.getTime()));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -209,8 +204,7 @@ public class EditEventActivity extends AppCompatActivity {
                 calendar = Calendar.getInstance();
                 if (!startDateEditText.getText().toString().isEmpty()) {
                     try {
-                        calendar.setTime(CalendarUtil.getInstance().getSdfDayMonthYear()
-                                .parse(startDateEditText.getText().toString()));
+                        calendar.setTime(CalendarUtil.sdfDayMonthYear.parse(startDateEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -223,8 +217,7 @@ public class EditEventActivity extends AppCompatActivity {
                         m, d);
                 if (!endDateEditText.getText().toString().isEmpty()) {
                     try {
-                        datePickerDialog.getDatePicker().setMaxDate(CalendarUtil.getInstance()
-                                .getSdfDayMonthYear().parse(endDateEditText.getText().toString()).getTime());
+                        datePickerDialog.getDatePicker().setMaxDate(CalendarUtil.sdfDayMonthYear.parse(endDateEditText.getText().toString()).getTime());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -239,8 +232,7 @@ public class EditEventActivity extends AppCompatActivity {
                 calendar = Calendar.getInstance();
                 if (!endDateEditText.getText().toString().isEmpty()) {
                     try {
-                        calendar.setTime(CalendarUtil.getInstance().getSdfDayMonthYear()
-                                .parse(endDateEditText.getText().toString()));
+                        calendar.setTime(CalendarUtil.sdfDayMonthYear.parse(endDateEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -253,8 +245,7 @@ public class EditEventActivity extends AppCompatActivity {
                         m, d);
                 if (!startDateEditText.getText().toString().isEmpty()) {
                     try {
-                        datePickerDialog.getDatePicker().setMinDate(CalendarUtil.getInstance()
-                                .getSdfDayMonthYear().parse(startDateEditText.getText().toString()).getTime());
+                        datePickerDialog.getDatePicker().setMinDate(CalendarUtil.sdfDayMonthYear.parse(startDateEditText.getText().toString()).getTime());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -268,8 +259,7 @@ public class EditEventActivity extends AppCompatActivity {
                 calendar = Calendar.getInstance();
                 if (!startTimeEditText.getText().toString().isEmpty()) {
                     try {
-                        calendar.setTime(CalendarUtil.getInstance().getSdfTime()
-                                .parse(startTimeEditText.getText().toString()));
+                        calendar.setTime(CalendarUtil.sdfTime.parse(startTimeEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -287,8 +277,7 @@ public class EditEventActivity extends AppCompatActivity {
                 calendar = Calendar.getInstance();
                 if (!endTimeEditText.getText().toString().isEmpty()) {
                     try {
-                        calendar.setTime(CalendarUtil.getInstance().getSdfTime()
-                                .parse(endTimeEditText.getText().toString()));
+                        calendar.setTime(CalendarUtil.sdfTime.parse(endTimeEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

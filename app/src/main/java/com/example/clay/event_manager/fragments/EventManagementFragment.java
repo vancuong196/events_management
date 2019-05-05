@@ -21,13 +21,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.clay.event_manager.activities.AddEventActivity;
-import com.example.clay.event_manager.activities.EventDetailsActivity;
+import com.example.clay.event_manager.activities.ViewEventActivity;
 import com.example.clay.event_manager.adapters.MainViewEventAdapter;
 import com.example.clay.event_manager.customlistviews.CustomListView;
 import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
 import com.example.clay.event_manager.repositories.EmployeeRepository;
 import com.example.clay.event_manager.repositories.EventRepository;
 import com.example.clay.event_manager.repositories.SalaryRepository;
+import com.example.clay.event_manager.repositories.ScheduleRepository;
 import com.example.clay.event_manager.utils.CalendarUtil;
 import com.example.clay.event_manager.utils.Constants;
 import com.example.clay.event_manager.R;
@@ -47,6 +48,8 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
     CalendarView calendarView;
     MainViewEventAdapter mainViewEventAdapter;
     boolean isFirstLoad = true;
+
+    Calendar calendar = Calendar.getInstance();
 
     String currentDate;
 
@@ -68,7 +71,7 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
         connectViews(view);
         addEvents();
 
-        currentDate = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
+        currentDate = CalendarUtil.sdfDayMonthYear.format(calendarView.getDate());
         Log.d("debug", "initiated current date: " + currentDate);
         dayTitleTextView.setText(Constants.DAY_TITLE_MAIN_FRAGMENT + currentDate);
 
@@ -76,9 +79,9 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
         EventRepository.getInstance(this);
         EmployeeRepository.getInstance(this);
         SalaryRepository.getInstance(this);
+        ScheduleRepository.getInstance(this);
 
-        mainViewEventAdapter = new MainViewEventAdapter(getActivity(), EventRepository.getInstance(null)
-                .getEventsOnDate(currentDate));
+        mainViewEventAdapter = new MainViewEventAdapter(getActivity(), currentDate);
         eventsListView.setAdapter(mainViewEventAdapter);
     }
 
@@ -123,12 +126,11 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int dayOfMonth) {
-                CalendarUtil.getInstance().getCalendar().set(Calendar.YEAR, year);
-                CalendarUtil.getInstance().getCalendar().set(Calendar.MONTH, month);
-                CalendarUtil.getInstance().getCalendar().set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                currentDate = CalendarUtil.getInstance().getSdfDayMonthYear()
-                        .format(CalendarUtil.getInstance().getCalendar().getTime());
+                currentDate = CalendarUtil.sdfDayMonthYear.format(calendar.getTime());
 
                 dayTitleTextView.setText(Constants.DAY_TITLE_MAIN_FRAGMENT + currentDate);
                 mainViewEventAdapter.notifyDataSetChanged(currentDate);
@@ -139,7 +141,7 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
         eventsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Intent eventDetailsIntent = new Intent(getActivity(), EventDetailsActivity.class);
+                Intent eventDetailsIntent = new Intent(getActivity(), ViewEventActivity.class);
                 eventDetailsIntent.putExtra("eventId", mainViewEventAdapter.getEventIds()[position]);
                 startActivityForResult(eventDetailsIntent, RESULT_FROM_DELETE_EVENT_INTENT);
             }
@@ -175,7 +177,7 @@ public class EventManagementFragment extends Fragment implements IOnDataLoadComp
     @Override
     public void notifyOnLoadComplete() {
         if (isFirstLoad) {
-            String date = CalendarUtil.getInstance().getSdfDayMonthYear().format(calendarView.getDate());
+            String date = CalendarUtil.sdfDayMonthYear.format(calendarView.getDate());
             mainViewEventAdapter.notifyDataSetChanged(date);
             isFirstLoad = false;
         }

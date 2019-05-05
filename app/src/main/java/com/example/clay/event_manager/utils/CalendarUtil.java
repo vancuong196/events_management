@@ -4,33 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class CalendarUtil {
-    SimpleDateFormat sdfDayMonthYear = new SimpleDateFormat("dd/MM/yyyy");;
-    SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEE");
-    SimpleDateFormat sdfTime = new SimpleDateFormat("hh:mm a");
-    SimpleDateFormat sdfDayMonth = new SimpleDateFormat("dd/MM");
-
-
-    Calendar calendar;
-    static CalendarUtil instance;
-
-    private CalendarUtil() {
-        calendar = Calendar.getInstance();
-    }
-
-    public Calendar getCalendar() {
-        return calendar;
-    }
-
-    public void setCalendar(Calendar calendar) {
-        this.calendar = calendar;
-    }
-
-    static public CalendarUtil getInstance() {
-        if(instance == null) {
-            instance = new CalendarUtil();
-        }
-        return instance;
-    }
+    public static SimpleDateFormat sdfDayMonthYear = new SimpleDateFormat("dd/MM/yyyy");;
+    public static SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEE");
+    public static SimpleDateFormat sdfTime = new SimpleDateFormat("hh:mm a");
+    public static SimpleDateFormat sdfDayMonth = new SimpleDateFormat("dd/MM");
 
     public SimpleDateFormat getSdfDayMonthYear() {
         return sdfDayMonthYear;

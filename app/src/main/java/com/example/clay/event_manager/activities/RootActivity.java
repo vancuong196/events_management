@@ -126,7 +126,7 @@ public class RootActivity extends AppCompatActivity
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_event_details);
+            setContentView(R.layout.activity_view_event);
         }
     }
 }

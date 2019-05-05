@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <android.support.v7.widget.Toolbar
         android:id="@+id/add_event_toolbar"
@@ -14,14 +15,13 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="20dp">
+        android:layout_below="@id/add_event_toolbar">
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="10dp"
             android:focusableInTouchMode="true"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginTop="10dp">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:nextFocusLeft="@id/title_edit_text"
                 android:nextFocusUp="@id/title_edit_text"
-                android:textSize="@dimen/content" />
+                android:textSize="@dimen/content"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -146,7 +146,7 @@
                 android:textStyle="bold" />
 
             <com.example.clay.event_manager.customlistviews.CustomListView
-                android:id="@+id/employees_listview"
+                android:id="@+id/employees_list_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"></com.example.clay.event_manager.customlistviews.CustomListView>
 
@@ -154,7 +154,8 @@
                 android:id="@+id/add_employee_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Thêm nhân sự" />
+                android:text="+"
+                android:textSize="20dp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -168,10 +169,18 @@
                 android:id="@+id/note_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="50dp"
                 android:gravity="top"
                 android:inputType="textMultiLine"
-                android:textSize="@dimen/note" />
+                android:textSize="@dimen/note"/>
+
+            <Button
+                android:id="@+id/add_event_schedule_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lịch trình"
+                android:textSize="20dp"
+                android:layout_marginBottom="50dp"
+                android:textAllCaps="false"/>
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

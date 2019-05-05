@@ -30,7 +30,6 @@
                 android:id="@+id/event_edit_title_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Pullman"
                 android:inputType="none"
                 android:textSize="@dimen/large_text"
                 android:textStyle="bold"
@@ -41,8 +40,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="20dp">
+                android:orientation="vertical">
                 <TextView
                     android:id="@+id/edit_event_start_text_view"
                     android:layout_width="match_parent"
@@ -169,7 +167,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textSize="@dimen/note"/>
+                    android:textSize="@dimen/note"
+                    android:layout_marginBottom="50dp"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

@@ -28,4 +28,9 @@ public class Constants {
     public static String SALARY_SALARY = "luong";
     public static String SALARY_PAID = "dathanhtoan";
 
+    public static String SCHEDULE_COLLECTION = "lichtrinh";
+    public static String SCHEDULE_EVENT_ID = "sukienid";
+    public static String SCHEDULE_TIME = "gio";
+    public static String SCHEDULE_CONTENT = "noidung";
+
 }

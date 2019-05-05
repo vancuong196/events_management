@@ -9,8 +9,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.example.clay.event_manager.models.Employee;
 import com.example.clay.event_manager.R;
+import com.example.clay.event_manager.models.Employee;
 import com.example.clay.event_manager.repositories.EmployeeRepository;
 
 import java.util.ArrayList;

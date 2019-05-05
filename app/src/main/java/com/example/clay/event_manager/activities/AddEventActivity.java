@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -22,12 +23,13 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.example.clay.event_manager.R;
+import com.example.clay.event_manager.adapters.AddScheduleAdapter;
 import com.example.clay.event_manager.adapters.DeleteEmployeeAdapter;
 import com.example.clay.event_manager.adapters.SelectEmployeeAdapter;
 import com.example.clay.event_manager.customlistviews.CustomListView;
 import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.models.Salary;
-import com.example.clay.event_manager.repositories.EmployeeRepository;
+import com.example.clay.event_manager.models.Schedule;
 import com.example.clay.event_manager.repositories.EventRepository;
 import com.example.clay.event_manager.utils.CalendarUtil;
 
@@ -40,7 +42,7 @@ public class AddEventActivity extends AppCompatActivity {
     EditText titleEditText, startDateEditText, startTimeEditText, endDateEditText, endTimeEditText,
             locationEditText, noteEditText;
     TextView startDowTextView, endDowTextView;
-    Button addEmployeeButton;
+    Button addEmployeeButton, scheduleButton;
     CustomListView deleteEmployeeListView;
 
     DatePickerDialog.OnDateSetListener dateSetListener;
@@ -48,8 +50,11 @@ public class AddEventActivity extends AppCompatActivity {
     View currentView;
 
     ArrayList<String> selectedEmployeesIds;
+    ArrayList<Schedule> schedules;
+
     DeleteEmployeeAdapter deleteAdapter;
     SelectEmployeeAdapter selectAdapder;
+    AddScheduleAdapter addScheduleAdapter;
 
     Calendar calendar = Calendar.getInstance();
 
@@ -65,9 +70,11 @@ public class AddEventActivity extends AppCompatActivity {
         addEvents();
 
         selectedEmployeesIds = new ArrayList<>();
+        schedules = new ArrayList<>();
 
         deleteAdapter = new DeleteEmployeeAdapter(this, selectedEmployeesIds);
         selectAdapder = new SelectEmployeeAdapter(this, selectedEmployeesIds);
+        addScheduleAdapter = new AddScheduleAdapter(this, schedules);
 
         deleteEmployeeListView.setAdapter(deleteAdapter);
     }
@@ -82,7 +89,7 @@ public class AddEventActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.add_event_action_add_event) {
-            addEvent();
+            addEventToDatabase();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -111,11 +118,12 @@ public class AddEventActivity extends AppCompatActivity {
         endDowTextView = (TextView) findViewById(R.id.end_dow_textview);
 
         addEmployeeButton = (Button) findViewById(R.id.add_employee_button);
+        scheduleButton = findViewById(R.id.add_event_schedule_button);
 
-        deleteEmployeeListView = (CustomListView) findViewById(R.id.employees_listview);
+        deleteEmployeeListView = (CustomListView) findViewById(R.id.employees_list_view);
     }
 
-    private void addEvent() {
+    private void addEventToDatabase() {
         if (!titleEditText.getText().toString().isEmpty() &&
                 !startDateEditText.getText().toString().isEmpty() &&
                 !endDateEditText.getText().toString().isEmpty() &&
@@ -142,10 +150,10 @@ public class AddEventActivity extends AppCompatActivity {
             }
             Log.d("debug", "AddEventActivity: salaries.size() = " + salaries.size());
             //Add event to sukien collection & salaries to luong collection
-            EventRepository.getInstance(null).addEventToDatabase(event, salaries, new EventRepository.MyAddEventCallback() {
+            EventRepository.getInstance(null).addEventToDatabase(event, salaries, schedules, new EventRepository.MyAddEventCallback() {
                 @Override
                 public void onCallback(String eventId) {
-                    Log.d("debug", "add event salaries size = " + salaries.size());
+                    Log.d("debug", "add event schedules size = " + schedules.size());
                     Intent intent = new Intent();
                     intent.putExtra("added?", true);
                     setResult(RESULT_OK, intent);
@@ -199,22 +207,18 @@ public class AddEventActivity extends AppCompatActivity {
 
 //                Update TextEdits & TextViews;
                 if (currentView == startDateEditText) {
-                    startDateEditText.setText(CalendarUtil.getInstance().getSdfDayMonthYear()
-                            .format(calendar.getTime()));
-                    startDowTextView.setText(CalendarUtil.getInstance().getSdfDayOfWeek()
-                            .format(calendar.getTime()));
+                    startDateEditText.setText(CalendarUtil.sdfDayMonthYear.format(calendar.getTime()));
+                    startDowTextView.setText(CalendarUtil.sdfDayOfWeek.format(calendar.getTime()));
                 } else {
-                    endDateEditText.setText(CalendarUtil.getInstance().getSdfDayMonthYear()
-                            .format(calendar.getTime()));
-                    endDowTextView.setText(CalendarUtil.getInstance().getSdfDayOfWeek()
-                            .format(calendar.getTime()));
+                    endDateEditText.setText(CalendarUtil.sdfDayMonthYear.format(calendar.getTime()));
+                    endDowTextView.setText(CalendarUtil.sdfDayOfWeek.format(calendar.getTime()));
                 }
 
 //                Set (end time = start time) if (end date == start date) and (end time < start time)
                 try {
                     if (endDateEditText.getText().toString().equals(startDateEditText.getText().toString())
-                            && CalendarUtil.getInstance().getSdfTime().parse(endTimeEditText.getText().toString()).getTime() <
-                            CalendarUtil.getInstance().getSdfTime().parse(startTimeEditText.getText().toString()).getTime()) {
+                            && CalendarUtil.sdfTime.parse(endTimeEditText.getText().toString()).getTime() <
+                            CalendarUtil.sdfTime.parse(startTimeEditText.getText().toString()).getTime()) {
                         endTimeEditText.setText(startTimeEditText.getText().toString());
                     }
                 } catch (Exception e) {
@@ -229,21 +233,20 @@ public class AddEventActivity extends AppCompatActivity {
                 calendar.set(Calendar.MINUTE, minute);
 
                 if (currentView == startTimeEditText) {
-                    startTimeEditText.setText(CalendarUtil.getInstance().getSdfTime().format(calendar.getTime()));
+                    startTimeEditText.setText(CalendarUtil.sdfTime.format(calendar.getTime()));
                 } else {
-                    endTimeEditText.setText(CalendarUtil.getInstance().getSdfTime().format(calendar.getTime()));
+                    endTimeEditText.setText(CalendarUtil.sdfTime.format(calendar.getTime()));
                 }
                 boolean increaseEndDateCondition = !(endTimeEditText.getText().toString().isEmpty() ||
                         startTimeEditText.getText().toString().isEmpty());
                 try {
                     if (increaseEndDateCondition
                             && startDateEditText.getText().toString().equals(endDateEditText.getText().toString())
-                            && (CalendarUtil.getInstance().getSdfTime().parse(startTimeEditText.getText().toString()).getTime()
-                            > CalendarUtil.getInstance().getSdfTime().parse(endTimeEditText.getText().toString()).getTime())) {
-                        calendar.setTime(CalendarUtil.getInstance().getSdfDayMonthYear()
-                                .parse(endDateEditText.getText().toString()));
+                            && (CalendarUtil.sdfTime.parse(startTimeEditText.getText().toString()).getTime()
+                            > CalendarUtil.sdfTime.parse(endTimeEditText.getText().toString()).getTime())) {
+                        calendar.setTime(CalendarUtil.sdfDayMonthYear.parse(endDateEditText.getText().toString()));
                         calendar.add(Calendar.DATE, 1);
-                        endDateEditText.setText(CalendarUtil.getInstance().getSdfDayMonthYear().format(calendar.getTime()));
+                        endDateEditText.setText(CalendarUtil.sdfDayMonthYear.format(calendar.getTime()));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -258,8 +261,7 @@ public class AddEventActivity extends AppCompatActivity {
                 calendar = Calendar.getInstance();
                 if (!startDateEditText.getText().toString().isEmpty()) {
                     try {
-                        calendar.setTime(CalendarUtil.getInstance().getSdfDayMonthYear()
-                                .parse(startDateEditText.getText().toString()));
+                        calendar.setTime(CalendarUtil.sdfDayMonthYear.parse(startDateEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -272,8 +274,8 @@ public class AddEventActivity extends AppCompatActivity {
                         m, d);
                 if (!endDateEditText.getText().toString().isEmpty()) {
                     try {
-                        datePickerDialog.getDatePicker().setMaxDate(CalendarUtil.getInstance()
-                                .getSdfDayMonthYear().parse(endDateEditText.getText().toString()).getTime());
+                        datePickerDialog.getDatePicker().setMaxDate(CalendarUtil.sdfDayMonthYear
+                                .parse(endDateEditText.getText().toString()).getTime());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -288,8 +290,7 @@ public class AddEventActivity extends AppCompatActivity {
                 calendar = Calendar.getInstance();
                 if (!endDateEditText.getText().toString().isEmpty()) {
                     try {
-                        calendar.setTime(CalendarUtil.getInstance().getSdfDayMonthYear()
-                                .parse(endDateEditText.getText().toString()));
+                        calendar.setTime(CalendarUtil.sdfDayMonthYear.parse(endDateEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -302,8 +303,7 @@ public class AddEventActivity extends AppCompatActivity {
                         m, d);
                 if (!startDateEditText.getText().toString().isEmpty()) {
                     try {
-                        datePickerDialog.getDatePicker().setMinDate(CalendarUtil.getInstance()
-                                .getSdfDayMonthYear().parse(startDateEditText.getText().toString()).getTime());
+                        datePickerDialog.getDatePicker().setMinDate(CalendarUtil.sdfDayMonthYear.parse(startDateEditText.getText().toString()).getTime());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -317,8 +317,7 @@ public class AddEventActivity extends AppCompatActivity {
                 calendar = Calendar.getInstance();
                 if (!startTimeEditText.getText().toString().isEmpty()) {
                     try {
-                        calendar.setTime(CalendarUtil.getInstance().getSdfTime()
-                                .parse(startTimeEditText.getText().toString()));
+                        calendar.setTime(CalendarUtil.sdfTime.parse(startTimeEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -336,8 +335,7 @@ public class AddEventActivity extends AppCompatActivity {
                 calendar = Calendar.getInstance();
                 if (!endTimeEditText.getText().toString().isEmpty()) {
                     try {
-                        calendar.setTime(CalendarUtil.getInstance().getSdfTime()
-                                .parse(endTimeEditText.getText().toString()));
+                        calendar.setTime(CalendarUtil.sdfTime.parse(endTimeEditText.getText().toString()));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -349,6 +347,72 @@ public class AddEventActivity extends AppCompatActivity {
                         mm, false).show();
             }
         });
+        scheduleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openAddScheduleDialog();
+            }
+        });
+    }
+
+    private void openAddScheduleDialog() {
+        final Dialog addScheduleDialog = new Dialog(this);
+        addScheduleDialog.setContentView(R.layout.dialog_add_schedule);
+
+        WindowManager.LayoutParams lWindowParams = new WindowManager.LayoutParams();
+        lWindowParams.copyFrom(addScheduleDialog.getWindow().getAttributes());
+        lWindowParams.width = WindowManager.LayoutParams.MATCH_PARENT; // this is where the magic happens
+        lWindowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+        //Connect views
+        final ListView addScheduleListView = addScheduleDialog.findViewById(R.id.add_schedule_dialog_schedule_list_view);
+        Button okButton = addScheduleDialog.findViewById(R.id.ok_button);
+        Button addScheduleButton = addScheduleDialog.findViewById(R.id.add_schedule_add_button);
+
+        addScheduleListView.setAdapter(addScheduleAdapter);
+
+
+        //Add events
+        addScheduleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                schedules.clear();
+                for(int i = 0; i < addScheduleListView.getChildCount(); i++) {
+                    EditText timeEditText = addScheduleListView.getChildAt(i).findViewById(R.id.add_schedule_time_edit_text);
+                    EditText contentEditText = addScheduleListView.getChildAt(i).findViewById(R.id.add_schedule_content_edit_text);
+                    String time = timeEditText.getText().toString();
+                    String content = contentEditText.getText().toString().trim();
+                    if(!time.isEmpty() || !content.isEmpty()) {
+                        schedules.add(new Schedule("", "", time, content));
+                    }
+                }
+                schedules.add(new Schedule());
+                addScheduleAdapter.notifyDataSetChanged();
+            }
+        });
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                schedules.clear();
+                for(int i = 0; i < addScheduleListView.getChildCount(); i++) {
+                    EditText timeEditText = addScheduleListView.getChildAt(i).findViewById(R.id.add_schedule_time_edit_text);
+                    EditText contentEditText = addScheduleListView.getChildAt(i).findViewById(R.id.add_schedule_content_edit_text);
+                    String time = timeEditText.getText().toString();
+                    String content = contentEditText.getText().toString();
+                    if(!time.isEmpty() || !content.isEmpty()) {
+                        schedules.add(new Schedule("", "", time, content));
+                    }
+                }
+                addScheduleDialog.dismiss();
+            }
+        });
+
+        if (!isFinishing()) {
+            addScheduleDialog.show();
+            addScheduleDialog.getWindow().setAttributes(lWindowParams);
+        }
+
     }
 
     private void openAddEmployeeDialog() {
@@ -356,9 +420,9 @@ public class AddEventActivity extends AppCompatActivity {
         addEmployeeDialog.setContentView(R.layout.dialog_select_employee);
 
         //Connect views
-        final ListView selectEmployeeListView = (ListView) addEmployeeDialog.findViewById(R.id.select_employee_listview);
-        Button cancelButton = (Button) addEmployeeDialog.findViewById(R.id.cancel_button);
-        Button okButton = (Button) addEmployeeDialog.findViewById(R.id.ok_button);
+        final ListView selectEmployeeListView = addEmployeeDialog.findViewById(R.id.select_employee_listview);
+        Button cancelButton = addEmployeeDialog.findViewById(R.id.cancel_button);
+        Button okButton = addEmployeeDialog.findViewById(R.id.ok_button);
 
         selectEmployeeListView.setAdapter(selectAdapder);
 

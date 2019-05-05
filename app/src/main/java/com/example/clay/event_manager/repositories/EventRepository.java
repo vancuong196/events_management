@@ -6,6 +6,8 @@ import android.util.Log;
 import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
 import com.example.clay.event_manager.models.Event;
 import com.example.clay.event_manager.models.Salary;
+import com.example.clay.event_manager.models.Schedule;
+import com.example.clay.event_manager.utils.CalendarUtil;
 import com.example.clay.event_manager.utils.Constants;
 import com.example.clay.event_manager.utils.DatabaseAccess;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -54,7 +56,8 @@ public class EventRepository{
         return instance;
     }
 
-    public void addEventToDatabase(Event event, final ArrayList<Salary> salaries, final MyAddEventCallback callback) {
+    public void addEventToDatabase(Event event, final ArrayList<Salary> salaries, final ArrayList<Schedule> schedules,
+                                   final MyAddEventCallback callback) {
         HashMap<String, String> data = new HashMap<>();
         data.put(Constants.EVENT_NAME, event.getTen());
         data.put(Constants.EVENT_START_DATE, event.getNgayBatDau());
@@ -67,11 +70,11 @@ public class EventRepository{
                 .collection(Constants.EVENT_COLLECTION)
                 .add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    ArrayList<Salary> tempSalaries = new ArrayList<>();
+                    ArrayList<Salary> tempSalaries = new ArrayList<>(salaries);
+                    ArrayList<Schedule> tempSchedules = new ArrayList<>(schedules);
                     @Override
                     public void onSuccess(final DocumentReference documentReference) {
-                        tempSalaries.addAll(salaries);
-                        Log.d("debug", "EventRepository: salaries.sizs() = " + tempSalaries.size());
+                        Log.d("debug", "EventRepository: salaries.size() = " + tempSalaries.size());
                         for(int i = 0; i < tempSalaries.size(); i++) {
                             tempSalaries.get(i).setEventId(documentReference.getId());
                             final int tempI = i;
@@ -79,7 +82,18 @@ public class EventRepository{
                                 @Override
                                 public void onCallback(String salaryId) {
                                     if(tempI == tempSalaries.size() - 1) {
-                                        callback.onCallback(documentReference.getId());
+                                        for(int j = 0; j < tempSchedules.size(); j++) {
+                                            tempSchedules.get(j).setEventId(documentReference.getId());
+                                            final int tempJ = j;
+                                            ScheduleRepository.getInstance(null).addScheduleToDatabase(tempSchedules.get(j), new ScheduleRepository.MyAddScheduleCallback() {
+                                                @Override
+                                                public void onCallback(String scheduleId) {
+                                                    if(tempJ == tempSchedules.size() - 1) {
+                                                        callback.onCallback(documentReference.getId());
+                                                    }
+                                                }
+                                            });
+                                        }
                                     }
                                 }
                             });
@@ -187,13 +201,33 @@ public class EventRepository{
                 });
     }
 
-    public HashMap<String, Event> getEventsOnDate(String date) {
+    public HashMap<String, Event> getEventsByDate(String date) {
         Log.d("debug", "EventRepository: getting event on date: " + date);
         HashMap<String, Event> events = new HashMap<>();
         if(getAllEvents().size() > 0) {
             for (String eventID : allEvents.keySet()) {
                 if (allEvents.get(eventID).getNgayBatDau().equals(date)) {
                     events.put(eventID, allEvents.get(eventID));
+                }
+            }
+        }
+        return events;
+    }
+
+    public HashMap<String, Event> getEventsThroughDate(String date) {
+        Log.d("debug", "EventRepository: getting event through date: " + date);
+        HashMap<String, Event> events = new HashMap<>();
+        if(getAllEvents().size() > 0) {
+            for (Event tempE : allEvents.values()) {
+                try {
+                    if (CalendarUtil.sdfDayMonthYear.parse(tempE.getNgayBatDau()).compareTo(
+                            CalendarUtil.sdfDayMonthYear.parse(date)) <= 0 &&
+                            CalendarUtil.sdfDayMonthYear.parse(tempE.getNgayKetThuc()).compareTo(
+                                    CalendarUtil.sdfDayMonthYear.parse(date)) >= 0) {
+                        events.put(tempE.getId(), tempE);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }

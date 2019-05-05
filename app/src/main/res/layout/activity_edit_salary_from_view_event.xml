@@ -28,7 +28,7 @@
             tools:context="com.example.clay.event_manager.activities.RootActivity$EventDetailsActivity">
 
             <TextView
-                android:id="@+id/edit_salary_from_event_details_title_text_view"
+                android:id="@+id/edit_salary_from_view_event_title_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
@@ -52,7 +52,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/edit_salary_from_event_details_time_text_view"
+                    android:id="@+id/edit_salary_from_view_event_time_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -68,7 +68,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/edit_salary_from_event_details_location_text_view"
+                    android:id="@+id/edit_salary_from_view_event_location_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -84,7 +84,7 @@
                     android:textStyle="bold" />
 
                 <com.example.clay.event_manager.customlistviews.CustomListView
-                    android:id="@+id/edit_salary_from_event_details_salary_list_view"
+                    android:id="@+id/edit_salary_from_view_event_salary_list_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"></com.example.clay.event_manager.customlistviews.CustomListView>
 
@@ -97,11 +97,12 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/edit_salary_from_event_details_note_text_view"
+                    android:id="@+id/edit_salary_from_view_event_note_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textSize="@dimen/note" />
+                    android:textSize="@dimen/note"
+                    android:layout_marginBottom="50dp"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

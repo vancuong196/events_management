@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <android.support.v7.widget.Toolbar
-        android:id="@+id/event_details_toolbar"
+        android:id="@+id/view_event_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
@@ -12,7 +12,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
     <ScrollView
-        android:layout_below="@id/event_details_toolbar"
+        android:layout_below="@id/view_event_toolbar"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         xmlns:android="http://schemas.android.com/apk/res/android">
@@ -26,7 +26,7 @@
             android:layout_marginBottom="20dp"
             tools:context="com.example.clay.event_manager.activities.RootActivity$EventDetailsActivity">
             <TextView
-                android:id="@+id/event_details_title_text_view"
+                android:id="@+id/view_event_title_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Pullman"
@@ -47,7 +47,7 @@
                     android:textStyle="bold"
                     android:textSize="@dimen/title"/>
                 <TextView
-                    android:id="@+id/event_details_time_text_view"
+                    android:id="@+id/view_event_time_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -61,7 +61,7 @@
                     android:textStyle="bold"
                     android:textSize="@dimen/title"/>
                 <TextView
-                    android:id="@+id/event_details_location_text_view"
+                    android:id="@+id/view_event_location_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -75,7 +75,7 @@
                     android:textSize="@dimen/title"
                     android:textStyle="bold"/>
                 <com.example.clay.event_manager.customlistviews.CustomListView
-                    android:id="@+id/event_details_employees_listview"
+                    android:id="@+id/view_event_employees_listview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 </com.example.clay.event_manager.customlistviews.CustomListView>
@@ -87,7 +87,7 @@
                     android:textSize="@dimen/title"
                     android:textStyle="bold"/>
                 <TextView
-                    android:id="@+id/event_details_note_text_view"
+                    android:id="@+id/view_event_note_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
@@ -100,16 +100,26 @@
                     android:textStyle="bold"
                     android:textSize="@dimen/title"/>
                 <com.example.clay.event_manager.customlistviews.CustomListView
-                    android:id="@+id/event_details_reminder_listview"
+                    android:id="@+id/view_event_reminder_listview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 </com.example.clay.event_manager.customlistviews.CustomListView>
                 <Button
-                    android:id="@+id/event_details_add_reminder_button"
+                    android:id="@+id/view_event_add_reminder_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Thêm nhắc nhở"/>
             </LinearLayout>
+            <Button
+                android:layout_marginTop="10dp"
+                android:id="@+id/view_event_schedule_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lịch trình"
+                android:textSize="20dp"
+                android:layout_marginBottom="50dp"
+                android:textAllCaps="false"/>
         </LinearLayout>
+
     </ScrollView>
 </RelativeLayout>
