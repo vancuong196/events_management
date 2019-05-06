@@ -20,8 +20,8 @@ import android.widget.Toast;
 
 import com.example.clay.event_manager.R;
 import com.example.clay.event_manager.activities.AddEventActivity;
-import com.example.clay.event_manager.activities.EventDetailsActivity;
 import com.example.clay.event_manager.activities.RootActivity;
+import com.example.clay.event_manager.activities.ViewEventActivity;
 import com.example.clay.event_manager.adapters.EventListViewAdapter;
 import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
 import com.example.clay.event_manager.models.DrawableCalendarEvent;
@@ -135,7 +135,7 @@ public class EventListFragment extends Fragment implements IOnDataLoadComplete {
 
             @Override
             public void onEventSelected(CalendarEvent event) {
-                Intent eventDetailsIntent = new Intent(getContext(), EventDetailsActivity.class);
+                Intent eventDetailsIntent = new Intent(getContext(), ViewEventActivity.class);
                 eventDetailsIntent.putExtra("eventId", ((DrawableCalendarEvent) event).getEventID() );
                 getActivity().startActivityForResult(eventDetailsIntent, RESULT_FROM_DELETE_EVENT_INTENT);
             }

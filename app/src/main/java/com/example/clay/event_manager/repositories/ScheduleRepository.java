@@ -7,9 +7,12 @@ import com.example.clay.event_manager.interfaces.IOnDataLoadComplete;
 import com.example.clay.event_manager.models.Schedule;
 import com.example.clay.event_manager.utils.Constants;
 import com.example.clay.event_manager.utils.DatabaseAccess;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -98,6 +101,29 @@ public class ScheduleRepository {
                 });
     }
 
+    public void deleteSchedulesByEventId(String eventId, final MyDeleteSchedulesByEventIdCallback callback) {
+        DatabaseAccess.getInstance().getDatabase()
+                .collection(Constants.SCHEDULE_COLLECTION)
+                .whereEqualTo(Constants.SCHEDULE_EVENT_ID, eventId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            for(DocumentSnapshot doc : task.getResult()) {
+                                DatabaseAccess.getInstance().getDatabase()
+                                        .collection(Constants.SCHEDULE_COLLECTION)
+                                        .document(doc.getId())
+                                        .delete();
+                            }
+                            callback.onCallback(true);
+                        } else {
+                            callback.onCallback(false);
+                        }
+                    }
+                });
+    }
+
     public ArrayList<Schedule> getSchedulesInArrayListByEventId(String eventId) {
         ArrayList<Schedule> schedules = new ArrayList<>();
         for (Schedule schedule : allSchedules.values()) {
@@ -114,5 +140,8 @@ public class ScheduleRepository {
 
     private interface MyScheduleCallback {
         void onCallback(HashMap<String, Schedule> scheduleList);
+    }
+    public interface MyDeleteSchedulesByEventIdCallback {
+        void onCallback(boolean deleteSucceed);
     }
 }

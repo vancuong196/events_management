@@ -10,12 +10,12 @@
         android:id="@+id/agenda_calendar_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        agendaCurrentDayTextColor="@color/theme_primary"
-        calendarColor="@color/theme_primary"
-        calendarCurrentDayTextColor="@color/calendar_text_current_day"
+        agendaCurrentDayTextColor="#fff"
+        calendarColor="#008577"
+        calendarCurrentDayTextColor="#FF5722"
         calendarDayTextColor="@color/theme_text_icons"
-        calendarHeaderColor="@color/theme_primary_dark"
-        calendarPastDayTextColor="@color/theme_light_primary"
-        fabColor="@color/theme_accent" />
+        calendarHeaderColor="#00574B"
+        calendarPastDayTextColor="#89EB8F"
+        fabColor="#D81B60" />
 </LinearLayout>
 </android.support.constraint.ConstraintLayout>

@@ -2,12 +2,16 @@ package com.example.clay.event_manager.adapters;
 
 import android.app.Activity;
 import android.app.TimePickerDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TabWidget;
 import android.widget.TimePicker;
 
 import com.example.clay.event_manager.R;
@@ -22,6 +26,10 @@ public class AddScheduleAdapter extends BaseAdapter {
     private final Activity context;
     ArrayList<Schedule> schedules;
     Calendar calendar = Calendar.getInstance();
+
+    EditText scheduleTimeEditText;
+    EditText scheduleContentEditText;
+    Button scheduleDeleteButton;
 
     public AddScheduleAdapter(Activity context, ArrayList<Schedule> schedules) {
         this.context = context;
@@ -44,24 +52,28 @@ public class AddScheduleAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int i, View view, ViewGroup viewGroup) {
+    public View getView(final int position, View view, ViewGroup viewGroup) {
         if (view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.layout_add_schedule_list_item, viewGroup, false);
         }
 
-        final EditText scheduleTimeEditText = view.findViewById(R.id.add_schedule_time_edit_text);
-        EditText scheduleContentEditText = view.findViewById(R.id.add_schedule_content_edit_text);
-        Button scheduleDeleteButton = view.findViewById(R.id.add_schedule_delete_button);
+        scheduleTimeEditText = view.findViewById(R.id.add_schedule_time_edit_text);
+        scheduleContentEditText = view.findViewById(R.id.add_schedule_content_edit_text);
+        scheduleDeleteButton = view.findViewById(R.id.add_schedule_delete_button);
+
+        //Save information
+//        schedules.get(position).setTime(scheduleTimeEditText.getText().toString());
+//        schedules.get(position).setContent(scheduleContentEditText.getText().toString());
 
         //Fill information
-        scheduleTimeEditText.setText(schedules.get(i).getTime());
-        scheduleContentEditText.setText(schedules.get(i).getContent());
+        scheduleTimeEditText.setText(schedules.get(position).getTime());
+        scheduleContentEditText.setText(schedules.get(position).getContent());
 
         //Add events
         scheduleDeleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                schedules.remove(i);
+                schedules.remove(position);
                 notifyDataSetChanged();
             }
         });
@@ -69,6 +81,7 @@ public class AddScheduleAdapter extends BaseAdapter {
         scheduleTimeEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("debug", "position = " + position);
                 calendar = Calendar.getInstance();
                 if (!scheduleTimeEditText.getText().toString().isEmpty()) {
                     try {
@@ -95,5 +108,11 @@ public class AddScheduleAdapter extends BaseAdapter {
 
     public ArrayList<Schedule> getSchedules() {
         return schedules;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        Log.d("debug", "schedules.size() = " + schedules.size());
+        super.notifyDataSetChanged();
     }
 }

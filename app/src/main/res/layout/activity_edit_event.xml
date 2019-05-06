@@ -167,9 +167,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textSize="@dimen/note"
-                    android:layout_marginBottom="50dp"/>
+                    android:textSize="@dimen/note"/>
             </LinearLayout>
+            <Button
+                android:layout_marginTop="10dp"
+                android:id="@+id/edit_event_schedule_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lịch trình"
+                android:textSize="20dp"
+                android:layout_marginBottom="50dp"
+                android:textAllCaps="false"/>
         </LinearLayout>
     </ScrollView>
 

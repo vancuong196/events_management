@@ -10,7 +10,6 @@
         android:layout_weight="3"
         android:inputType="none"
         android:id="@+id/add_schedule_time_edit_text"
-        android:focusable="false"
         android:hint="Thời gian"/>
     <EditText
         android:layout_width="0dp"

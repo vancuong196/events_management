@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.clay.event_manager.R;
-import com.example.clay.event_manager.activities.EventDetailsActivity;
 import com.example.clay.event_manager.activities.RootActivity;
 import com.example.clay.event_manager.models.Event;
 

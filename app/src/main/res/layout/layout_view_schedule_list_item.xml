@@ -4,19 +4,19 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:weightSum="10">
-    <EditText
+    <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="3"
         android:inputType="none"
-        android:id="@+id/view_schedule_time_edit_text"
+        android:id="@+id/view_schedule_time_text_view"
         android:focusable="false"
         android:hint="Thời gian"/>
-    <EditText
+    <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="7"
-        android:id="@+id/view_schedule_content_edit_text"
+        android:id="@+id/view_schedule_content_text_view"
         android:hint="Nội dung"
         android:inputType="none"
         android:focusable="false"/>

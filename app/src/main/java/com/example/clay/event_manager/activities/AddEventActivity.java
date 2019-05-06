@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -371,21 +372,21 @@ public class AddEventActivity extends AppCompatActivity {
 
         addScheduleListView.setAdapter(addScheduleAdapter);
 
-
         //Add events
+//        addScheduleListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                if(view.getId() == R.id.add_schedule_delete_button) {
+//                    saveAllSchedules(schedules, addScheduleListView);
+//                    schedules.remove(i);
+//                    addScheduleAdapter.notifyDataSetChanged();
+//                }
+//            }
+//        });
+
         addScheduleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                schedules.clear();
-                for(int i = 0; i < addScheduleListView.getChildCount(); i++) {
-                    EditText timeEditText = addScheduleListView.getChildAt(i).findViewById(R.id.add_schedule_time_edit_text);
-                    EditText contentEditText = addScheduleListView.getChildAt(i).findViewById(R.id.add_schedule_content_edit_text);
-                    String time = timeEditText.getText().toString();
-                    String content = contentEditText.getText().toString().trim();
-                    if(!time.isEmpty() || !content.isEmpty()) {
-                        schedules.add(new Schedule("", "", time, content));
-                    }
-                }
                 schedules.add(new Schedule());
                 addScheduleAdapter.notifyDataSetChanged();
             }
@@ -412,7 +413,6 @@ public class AddEventActivity extends AppCompatActivity {
             addScheduleDialog.show();
             addScheduleDialog.getWindow().setAttributes(lWindowParams);
         }
-
     }
 
     private void openAddEmployeeDialog() {

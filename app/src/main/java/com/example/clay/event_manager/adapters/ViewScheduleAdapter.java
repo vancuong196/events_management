@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.clay.event_manager.R;
 import com.example.clay.event_manager.models.Schedule;
@@ -43,8 +44,8 @@ public class ViewScheduleAdapter extends BaseAdapter {
             view = LayoutInflater.from(context).inflate(R.layout.layout_view_schedule_list_item, viewGroup, false);
         }
 
-        final EditText scheduleTimeEditText = view.findViewById(R.id.view_schedule_time_edit_text);
-        EditText scheduleContentEditText = view.findViewById(R.id.view_schedule_content_edit_text);
+        final TextView scheduleTimeEditText = view.findViewById(R.id.view_schedule_time_text_view);
+        TextView scheduleContentEditText = view.findViewById(R.id.view_schedule_content_text_view);
 
         //Fill information
         scheduleTimeEditText.setText(schedules.get(i).getTime());
